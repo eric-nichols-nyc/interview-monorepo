@@ -1,21 +1,102 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
-  output          = "../generated/client"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
 }
 
-// This is a stub model.
-// Delete it and add your own Prisma models.
-model Page {
-  id   Int    @id @default(autoincrement())
-  name String
+model Subscription {
+  userId                String    @id @map("user_id") @db.Uuid
+  stripeCustomerId      String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")
+  subscriptionPlan      String?   @default("free") @map("subscription_plan")
+  subscriptionStatus    String?   @map("subscription_status")
+  currentPeriodEnd      DateTime? @map("current_period_end") @db.Timestamptz(6)
+  trialEnd              DateTime? @map("trial_end") @db.Timestamptz(6)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("subscriptions")
+  @@schema("public")
+}
+
+model Job {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  title       String
+  company     String?
+  description String?
+  jobUrl      String?  @map("job_url")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  resumes Resume[]
+
+  @@index([userId])
+  @@map("jobs")
+  @@schema("public")
+}
+
+model Resume {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  jobId                 String?   @map("job_id") @db.Uuid
+  isBaseResume          Boolean?  @default(false) @map("is_base_resume")
+  name                  String
+  firstName             String?   @map("first_name")
+  lastName              String?   @map("last_name")
+  email                 String?
+  phoneNumber           String?   @map("phone_number")
+  location              String?
+  website               String?
+  linkedinUrl           String?   @map("linkedin_url")
+  githubUrl             String?   @map("github_url")
+  professionalSummary   String?   @map("professional_summary")
+  workExperience        Json      @default("[]") @map("work_experience") @db.JsonB
+  education             Json      @default("[]") @db.JsonB
+  skills                Json      @default("[]") @db.JsonB // Changed from skillsJson
+  projects              Json      @default("[]") @db.JsonB
+  certifications        Json      @default("[]") @db.JsonB
+  sectionOrder          Json      @default("[\"professional_summary\", \"work_experience\", \"skills\", \"projects\", \"education\", \"certifications\"]") @map("section_order") @db.JsonB
+  sectionConfigs        Json      @default("{\"skills\": {\"style\": \"grouped\", \"visible\": true}, \"projects\": {\"visible\": true, \"max_items\": 3}, \"education\": {\"visible\": true, \"max_items\": null}, \"certifications\": {\"visible\": true}, \"work_experience\": {\"visible\": true, \"max_items\": null}}") @map("section_configs") @db.JsonB
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  resumeTitle           String?   @map("resume_title")
+  targetRole            String?   @map("target_role")
+  documentSettings      Json      @default("{\"header_name_size\": 24, \"skills_margin_top\": 2, \"document_font_size\": 10, \"projects_margin_top\": 2, \"skills_item_spacing\": 2, \"document_line_height\": 1.5, \"education_margin_top\": 2, \"skills_margin_bottom\": 2, \"experience_margin_top\": 2, \"projects_item_spacing\": 4, \"education_item_spacing\": 4, \"projects_margin_bottom\": 2, \"education_margin_bottom\": 2, \"experience_item_spacing\": 4, \"document_margin_vertical\": 36, \"experience_margin_bottom\": 2, \"skills_margin_horizontal\": 0, \"document_margin_horizontal\": 36, \"header_name_bottom_spacing\": 24, \"projects_margin_horizontal\": 0, \"education_margin_horizontal\": 0, \"experience_margin_horizontal\": 0}") @map("document_settings") @db.JsonB
+  hasCoverLetter        Boolean   @default(false) @map("has_cover_letter")
+  coverLetter           Json?     @map("cover_letter") @db.JsonB
+
+  job Job? @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([jobId])
+  @@map("resumes")
+  @@schema("public")
+}
+
+model Profile {
+  userId            String   @id @map("user_id") @db.Uuid
+  firstName         String?  @map("first_name")
+  lastName          String?  @map("last_name")
+  email             String?
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  phoneNumber       String?  @map("phone_number")
+  location          String?
+  website           String?
+  linkedinUrl       String?  @map("linkedin_url")
+  githubUrl         String?  @map("github_url")
+  workExperience    Json     @default("[]") @map("work_experience") @db.JsonB
+  education         Json     @default("[]") @db.JsonB
+  skills            Json     @default("[]") @db.JsonB
+  projects          Json     @default("[]") @db.JsonB
+  certifications    Json     @default("[]") @db.JsonB
+
+  @@map("profiles")
+  @@schema("public")
 }

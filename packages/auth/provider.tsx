@@ -1,58 +1,91 @@
 "use client";
 
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
-import type { Theme } from "@clerk/types";
-import { useTheme } from "next-themes";
-import type { ComponentProps } from "react";
+import type { AuthError, Session, User } from "@supabase/supabase-js";
+import type { ReactNode } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from "./client";
 
-type AuthProviderProperties = ComponentProps<typeof ClerkProvider> & {
+type AuthContextType = {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  error: AuthError | null;
+  signOut: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+type AuthProviderProperties = {
+  children: ReactNode;
   privacyUrl?: string;
   termsUrl?: string;
   helpUrl?: string;
 };
 
 export const AuthProvider = ({
+  children,
   privacyUrl,
   termsUrl,
   helpUrl,
-  ...properties
 }: AuthProviderProperties) => {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-  const baseTheme = isDark ? dark : undefined;
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<AuthError | null>(null);
 
-  const variables: Theme["variables"] = {
-    fontFamily: "var(--font-sans)",
-    fontFamilyButtons: "var(--font-sans)",
-    fontWeight: {
-      bold: "var(--font-weight-bold)",
-      normal: "var(--font-weight-normal)",
-      medium: "var(--font-weight-medium)",
-    },
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      setSession(session);
+      setUser(session?.user ?? null);
+      setError(error);
+      setLoading(false);
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const signOut = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setError(error);
+    }
+    setLoading(false);
   };
 
-  const elements: Theme["elements"] = {
-    dividerLine: "bg-border",
-    socialButtonsIconButton: "bg-card",
-    navbarButton: "text-foreground",
-    organizationSwitcherTrigger__open: "bg-background",
-    organizationPreviewMainIdentifier: "text-foreground",
-    organizationSwitcherTriggerIcon: "text-muted-foreground",
-    organizationPreview__organizationSwitcherTrigger: "gap-2",
-    organizationPreviewAvatarContainer: "shrink-0",
+  const value = {
+    user,
+    session,
+    loading,
+    error,
+    signOut,
   };
 
-  const layout: Theme["layout"] = {
-    privacyPageUrl: privacyUrl,
-    termsPageUrl: termsUrl,
-    helpPageUrl: helpUrl,
-  };
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-  return (
-    <ClerkProvider
-      {...properties}
-      appearance={{ layout, baseTheme, elements, variables }}
-    />
-  );
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

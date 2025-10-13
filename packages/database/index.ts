@@ -1,22 +1,67 @@
 import "server-only";
 
-import { neonConfig, Pool } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import ws from "ws";
-import { PrismaClient } from "./generated/client";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "./types/supabase";
+import { PrismaClient } from "./generated/prisma";
 import { keys } from "./keys";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// Prisma client singleton
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-neonConfig.webSocketConstructor = ws;
-
-const pool = new Pool({ connectionString: keys().DATABASE_URL });
-const adapter = new PrismaNeon(pool);
-
-export const database = globalForPrisma.prisma || new PrismaClient({ adapter });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = database;
+// Lazy initialization of Prisma client
+function getPrismaClient() {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = new PrismaClient({
+      log: ["query"],
+    });
+  }
+  return globalForPrisma.prisma;
 }
 
-export * from "./generated/client";
+// Use a getter to ensure Prisma is only instantiated when accessed
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    const client = getPrismaClient();
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});
+
+// Server-side Supabase client for Server Components, Server Actions, and Route Handlers
+export async function createClient() {
+  const cookieStore = await cookies();
+  const { SUPABASE_URL, SUPABASE_ANON_KEY } = keys();
+
+  return createServerClient<Database>(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  );
+}
+
+// Legacy export for backwards compatibility
+export const database = createClient;
+
+// Re-export types
+export type { Database } from "./types/supabase";
+export * from "./generated/prisma";

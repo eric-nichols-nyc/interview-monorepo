@@ -4,6 +4,10 @@ import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./providers/theme";
 
+// Export components
+export { Navigation } from "./components/navigation";
+export { UserAvatarDropdown, type UserAvatarDropdownProps, type ExternalLinkItem } from "./components/user-avatar-dropdown";
+
 type DesignSystemProviderProperties = ThemeProviderProps & {
   privacyUrl?: string;
   termsUrl?: string;

@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "basehub dev",
-    "build": "basehub build",
+    "dev": "[ -n \"$BASEHUB_TOKEN\" ] && basehub dev || echo 'Skipping CMS dev (no BASEHUB_TOKEN)'",
+    "build": "[ -n \"$BASEHUB_TOKEN\" ] && basehub build || echo 'Skipping CMS build (no BASEHUB_TOKEN)'",
     "analyze": "basehub",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
