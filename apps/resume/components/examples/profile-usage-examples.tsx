@@ -1,15 +1,32 @@
-'use client';
+"use client";
 
-import { Avatar, AvatarFallback } from '@repo/design-system/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/design-system/components/ui/card';
-import { Badge } from '@repo/design-system/components/ui/badge';
-import { Loader2, User, Mail, MapPin, Globe, Github, Linkedin } from 'lucide-react';
-import { 
-  useProfile, 
-  useCachedProfile, 
+import {
+  Avatar,
+  AvatarFallback,
+} from "@repo/design-system/components/ui/avatar";
+import { Badge } from "@repo/design-system/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/design-system/components/ui/card";
+import {
+  Github,
+  Globe,
+  Linkedin,
+  Loader2,
+  Mail,
+  MapPin,
+  User,
+} from "lucide-react";
+import {
+  useCachedProfile,
+  useInvalidateProfile,
   usePrefetchProfile,
-  useInvalidateProfile 
-} from '../../lib/profile-queries';
+  useProfile,
+} from "../../hooks/queries/profile-queries";
 
 /**
  * Example 1: Header/Navigation Profile Display
@@ -17,26 +34,27 @@ import {
  */
 export function ProfileHeader() {
   const { profile, hasCache } = useCachedProfile();
-  
-  if (!hasCache || !profile) {
+
+  if (!(hasCache && profile)) {
     return (
       <div className="flex items-center space-x-2">
-        <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse" />
-        <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+        <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
       </div>
     );
   }
 
-  const initials = `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}`;
-  const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+  const initials = `${profile.firstName?.[0] || ""}${profile.lastName?.[0] || ""}`;
+  const fullName =
+    `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
 
   return (
     <div className="flex items-center space-x-3">
       <Avatar className="h-8 w-8">
-        <AvatarFallback>{initials || 'U'}</AvatarFallback>
+        <AvatarFallback>{initials || "U"}</AvatarFallback>
       </Avatar>
-      <span className="text-sm font-medium">
-        {fullName || 'Anonymous User'}
+      <span className="font-medium text-sm">
+        {fullName || "Anonymous User"}
       </span>
     </div>
   );
@@ -54,10 +72,10 @@ export function ProfileSummaryCard() {
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-4">
-            <div className="h-16 w-16 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-16 w-16 animate-pulse rounded-full bg-gray-200" />
             <div className="space-y-2">
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+              <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
             </div>
           </div>
         </CardHeader>
@@ -69,53 +87,58 @@ export function ProfileSummaryCard() {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">No profile data available</p>
+          <p className="text-muted-foreground text-sm">
+            No profile data available
+          </p>
         </CardContent>
       </Card>
     );
   }
 
-  const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
-  const initials = `${profile.firstName?.[0] || ''}${profile.lastName?.[0] || ''}`;
+  const fullName =
+    `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+  const initials = `${profile.firstName?.[0] || ""}${profile.lastName?.[0] || ""}`;
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-start space-x-4">
           <Avatar className="h-16 w-16">
-            <AvatarFallback className="text-xl">{initials || 'U'}</AvatarFallback>
+            <AvatarFallback className="text-xl">
+              {initials || "U"}
+            </AvatarFallback>
           </Avatar>
-          <div className="space-y-1 flex-1">
+          <div className="flex-1 space-y-1">
             <CardTitle className="text-xl">
-              {fullName || 'Complete Your Profile'}
+              {fullName || "Complete Your Profile"}
             </CardTitle>
             {profile.location && (
-              <div className="flex items-center text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 mr-1" />
+              <div className="flex items-center text-muted-foreground text-sm">
+                <MapPin className="mr-1 h-4 w-4" />
                 {profile.location}
               </div>
             )}
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {profile.email && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge className="flex items-center gap-1" variant="secondary">
                   <Mail className="h-3 w-3" />
                   {profile.email}
                 </Badge>
               )}
               {profile.website && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge className="flex items-center gap-1" variant="secondary">
                   <Globe className="h-3 w-3" />
                   Website
                 </Badge>
               )}
               {profile.githubUrl && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge className="flex items-center gap-1" variant="secondary">
                   <Github className="h-3 w-3" />
                   GitHub
                 </Badge>
               )}
               {profile.linkedinUrl && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge className="flex items-center gap-1" variant="secondary">
                   <Linkedin className="h-3 w-3" />
                   LinkedIn
                 </Badge>
@@ -125,30 +148,30 @@ export function ProfileSummaryCard() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
           <div>
-            <div className="text-2xl font-bold text-primary">
+            <div className="font-bold text-2xl text-primary">
               {profile.workExperience?.length || 0}
             </div>
-            <div className="text-sm text-muted-foreground">Experience</div>
+            <div className="text-muted-foreground text-sm">Experience</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-primary">
+            <div className="font-bold text-2xl text-primary">
               {profile.projects?.length || 0}
             </div>
-            <div className="text-sm text-muted-foreground">Projects</div>
+            <div className="text-muted-foreground text-sm">Projects</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-primary">
+            <div className="font-bold text-2xl text-primary">
               {profile.skills?.length || 0}
             </div>
-            <div className="text-sm text-muted-foreground">Skills</div>
+            <div className="text-muted-foreground text-sm">Skills</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-primary">
+            <div className="font-bold text-2xl text-primary">
               {profile.education?.length || 0}
             </div>
-            <div className="text-sm text-muted-foreground">Education</div>
+            <div className="text-muted-foreground text-sm">Education</div>
           </div>
         </div>
       </CardContent>
@@ -172,7 +195,10 @@ export function ProfileSkills() {
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
+              <div
+                className="h-6 w-16 animate-pulse rounded bg-gray-200"
+                key={i}
+              />
             ))}
           </div>
         </CardContent>
@@ -185,7 +211,9 @@ export function ProfileSkills() {
       <Card>
         <CardHeader>
           <CardTitle>Skills</CardTitle>
-          <CardDescription>Add skills to your profile to showcase your expertise</CardDescription>
+          <CardDescription>
+            Add skills to your profile to showcase your expertise
+          </CardDescription>
         </CardHeader>
       </Card>
     );
@@ -202,7 +230,7 @@ export function ProfileSkills() {
             <Badge key={skill.id || index} variant="outline">
               {skill.name}
               {skill.proficiency && (
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1 text-muted-foreground text-xs">
                   ({skill.proficiency})
                 </span>
               )}
@@ -220,12 +248,12 @@ export function ProfileSkills() {
  */
 export function ProfileNavLink() {
   const prefetchProfile = usePrefetchProfile();
-  
+
   return (
     <a
+      className="block px-4 py-2 text-gray-700 text-sm hover:bg-gray-100"
       href="/profile"
       onMouseEnter={prefetchProfile}
-      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
     >
       Edit Profile
     </a>
@@ -238,15 +266,15 @@ export function ProfileNavLink() {
  */
 export function AdminProfileActions() {
   const invalidateProfile = useInvalidateProfile();
-  
+
   const handleRefreshProfile = () => {
     invalidateProfile();
   };
-  
+
   return (
     <button
+      className="rounded bg-gray-100 px-3 py-1 text-xs hover:bg-gray-200"
       onClick={handleRefreshProfile}
-      className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
     >
       Refresh Profile Data
     </button>
@@ -259,7 +287,7 @@ export function AdminProfileActions() {
  */
 export function ProfileCompletenessWidget() {
   const { data: profile, isLoading } = useProfile();
-  
+
   if (isLoading) {
     return (
       <Card>
@@ -272,17 +300,19 @@ export function ProfileCompletenessWidget() {
       </Card>
     );
   }
-  
+
   if (!profile) {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">Create your profile to get started</p>
+          <p className="text-muted-foreground text-sm">
+            Create your profile to get started
+          </p>
         </CardContent>
       </Card>
     );
   }
-  
+
   const fields = [
     profile.firstName,
     profile.lastName,
@@ -292,11 +322,13 @@ export function ProfileCompletenessWidget() {
     profile.skills?.length > 0,
     profile.education?.length > 0,
   ];
-  
+
   const completedFields = fields.filter(Boolean).length;
   const totalFields = fields.length;
-  const completionPercentage = Math.round((completedFields / totalFields) * 100);
-  
+  const completionPercentage = Math.round(
+    (completedFields / totalFields) * 100
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -311,17 +343,16 @@ export function ProfileCompletenessWidget() {
             <span>Progress</span>
             <span>{completionPercentage}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-gray-200">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-300"
+              className="h-2 rounded-full bg-primary transition-all duration-300"
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {completionPercentage < 100 
-              ? `Complete your profile to improve your visibility`
-              : `Great! Your profile is complete`
-            }
+          <p className="mt-2 text-muted-foreground text-xs">
+            {completionPercentage < 100
+              ? "Complete your profile to improve your visibility"
+              : "Great! Your profile is complete"}
           </p>
         </div>
       </CardContent>

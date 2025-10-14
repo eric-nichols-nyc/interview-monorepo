@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { validateProfile } from "../lib/profile-schema";
+import { validateProfile } from "../schemas/profile-schema";
 import type {
   BasicInfo,
   Certification,

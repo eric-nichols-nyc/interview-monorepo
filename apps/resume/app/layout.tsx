@@ -1,4 +1,5 @@
 import { DesignSystemProvider } from "@repo/design-system";
+import { AuthProvider } from "@repo/auth/provider";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "./components/header";
@@ -18,10 +19,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <DesignSystemProvider>
-          <QueryProvider>
-            <Header />
-            {children}
-          </QueryProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <Header />
+              {children}
+            </QueryProvider>
+          </AuthProvider>
         </DesignSystemProvider>
       </body>
     </html>

@@ -12,6 +12,12 @@ export function Header() {
         </div>
 
         <div className="flex items-center space-x-4">
+          <Link
+            className="font-medium text-sm hover:underline"
+            href="/dashboard"
+          >
+            Dashboard
+          </Link>
           <Link className="font-medium text-sm hover:underline" href="/profile">
             Profile
           </Link>

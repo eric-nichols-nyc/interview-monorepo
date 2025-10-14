@@ -2,6 +2,8 @@
 
 import { useAuth } from "@repo/auth/provider";
 import { Button } from "@repo/design-system/components/ui/button";
+import { CreateResumeDialog } from "../../components/create-resume-dialog";
+import { Plus } from "lucide-react";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -26,17 +28,20 @@ export default function HomePage() {
         </p>
 
         <div className="flex justify-center gap-4">
-          <Button
-            className="rounded-lg bg-primary px-6 py-3 font-medium text-black transition-opacity hover:opacity-90"
-            type="button"
-          >
-            Get Started
-          </Button>
+          <CreateResumeDialog>
+            <Button
+              className="rounded-lg bg-primary px-6 py-3 font-medium text-black transition-opacity hover:opacity-90"
+              type="button"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Resume
+            </Button>
+          </CreateResumeDialog>
           <Button
             className="rounded-lg border border-border px-6 py-3 font-medium transition-colors hover:bg-muted"
             type="button"
           >
-            Learn More
+            View Resumes
           </Button>
         </div>
       </div>

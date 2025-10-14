@@ -11,12 +11,10 @@ export const workExperienceSchema = z.object({
   id: z.string().optional(),
   company: z.string().min(1, 'Company name is required'),
   position: z.string().min(1, 'Position is required'),
-  location: z.string().optional(),
-  startDate: dateString,
-  endDate: z.string().optional(),
-  isCurrent: z.boolean().default(false),
-  description: z.string().optional(),
-  achievements: z.array(z.string()).default([]),
+  location: z.string().min(1, 'Location is required'),
+  date: z.string().min(1, 'Date is required'),
+  description: z.array(z.string()).default([]),
+  technologies: z.array(z.string()).default([]),
 });
 
 // Education Schema
@@ -50,9 +48,8 @@ export const projectSchema = z.object({
 // Skill Schema
 export const skillSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, 'Skill name is required'),
-  category: z.string().min(1, 'Category is required'),
-  proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Expert']).optional(),
+  category: z.string().min(1, 'Category name is required'),
+  items: z.array(z.string()).default([]),
 });
 
 // Certification Schema

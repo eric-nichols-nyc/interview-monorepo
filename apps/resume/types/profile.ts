@@ -2,12 +2,10 @@ export type WorkExperience = {
   id?: string;
   company: string;
   position: string;
-  location?: string;
-  startDate: string;
-  endDate?: string;
-  isCurrent: boolean;
-  description?: string;
-  achievements?: string[];
+  location: string;
+  date: string; // Combined date field (e.g., "Jan 2023 - Present")
+  description: string[]; // Array of bullet points
+  technologies: string[]; // Array of technologies/skills
 };
 
 export type Education = {
@@ -38,9 +36,8 @@ export type Project = {
 
 export type Skill = {
   id?: string;
-  name: string;
-  category: string;
-  proficiency?: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+  category: string;  // e.g., "Programming Languages", "Frameworks", "Tools"
+  items: string[];   // Array of skills in this category
 };
 
 export type Certification = {
@@ -54,14 +51,14 @@ export type Certification = {
 };
 
 export type BasicInfo = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phoneNumber?: string;
-  location?: string;
-  website?: string;
-  linkedinUrl?: string;
-  githubUrl?: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phoneNumber?: string | null;
+  location?: string | null;
+  website?: string | null;
+  linkedinUrl?: string | null;
+  githubUrl?: string | null;
 };
 
 export type ProfileFormData = BasicInfo & {
