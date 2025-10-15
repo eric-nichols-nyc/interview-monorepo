@@ -2,21 +2,60 @@
 
 import { Button } from "@repo/design-system/components/ui/button";
 import { Textarea } from "@repo/design-system/components/ui/textarea";
-import { GripVertical, Plus, Sparkles, Trash2 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  restrictToVerticalAxis,
+  restrictToParentElement,
+} from "@dnd-kit/modifiers";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+import { DraggableBulletPoint } from "./draggable-bullet-point";
 
 type BulletPointsSectionProps = {
   bulletPoints: string[];
   onUpdate: (bulletPoints: string[]) => void;
 };
 
-const KEY_PREFIX_LENGTH = 20;
-
 export function BulletPointsSection({
   bulletPoints,
   onUpdate,
 }: BulletPointsSectionProps) {
   const [newBulletPoint, setNewBulletPoint] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const bulletPointIds = bulletPoints.map((_, index) => `bullet-${index}`);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = bulletPointIds.indexOf(active.id as string);
+      const newIndex = bulletPointIds.indexOf(over.id as string);
+      
+      const reorderedBulletPoints = arrayMove(bulletPoints, oldIndex, newIndex);
+      onUpdate(reorderedBulletPoints);
+    }
+  };
 
   const addBulletPoint = () => {
     if (!newBulletPoint.trim()) {
@@ -44,49 +83,31 @@ export function BulletPointsSection({
         Key Responsibilities & Achievements
       </h3>
 
-      {/* Existing bullet points */}
-      <div className="space-y-3">
-        {bulletPoints.map((bulletPoint, index) => (
-          <div
-            className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50"
-            key={`bullet-${bulletPoint.slice(0, KEY_PREFIX_LENGTH)}-${index}`}
-          >
-            <button
-              aria-label="Drag to reorder"
-              className="mt-1 cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing"
-              type="button"
-            >
-              <GripVertical className="h-5 w-5" />
-            </button>
-            <Textarea
-              className="min-h-[60px] flex-1 resize-none border-none bg-transparent p-0 text-sm leading-relaxed focus-visible:ring-0"
-              onChange={(e) => updateBulletPoint(index, e.target.value)}
-              placeholder="Describe your responsibility or achievement..."
-              value={bulletPoint}
-            />
-            <div className="flex items-center gap-2">
-              <Button
-                className="h-8 w-8 text-muted-foreground opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive md:opacity-0 md:group-hover:opacity-100"
-                onClick={() => deleteBulletPoint(index)}
-                size="icon"
-                title="Delete bullet point"
-                variant="ghost"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              <Button
-                className="h-8 w-8 text-accent opacity-100 transition-all hover:bg-accent/10 hover:text-accent/80 md:opacity-0 md:group-hover:opacity-100"
-                disabled
-                size="icon"
-                title="AI enhancement (coming soon)"
-                variant="ghost"
-              >
-                <Sparkles className="h-4 w-4" />
-              </Button>
-            </div>
+      {/* Existing bullet points with drag and drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      >
+        <SortableContext
+          items={bulletPointIds}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-3">
+            {bulletPoints.map((bulletPoint, index) => (
+              <DraggableBulletPoint
+                key={bulletPointIds[index]}
+                id={bulletPointIds[index]}
+                bulletPoint={bulletPoint}
+                index={index}
+                onUpdate={updateBulletPoint}
+                onDelete={deleteBulletPoint}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Add new bullet point */}
       <div className="rounded-lg border border-border border-dashed bg-card/50 p-4">

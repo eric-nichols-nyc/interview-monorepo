@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useResumeBasicInfo } from "../../../../../stores/resume-editor-store";
+import { useResumeBasicInfo, useResumeWorkExperience } from "../../../../../stores/resume-editor-store";
 
 // Regex for removing protocol from URLs
 const PROTOCOL_REGEX = /^https?:\/\//;
@@ -30,6 +30,7 @@ export function HtmlPreviewPanel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const documentRef = useRef<HTMLDivElement>(null);
   const basicInfo = useResumeBasicInfo();
+  const workExperience = useResumeWorkExperience();
 
   // Calculate scale based on container size
   const calculateScale = () => {
@@ -186,6 +187,69 @@ export function HtmlPreviewPanel() {
             })}
           </div>
         </div>
+
+        {/* Work Experience Section */}
+        {workExperience && workExperience.length > 0 && (
+          <div className="mb-8">
+            <h2 className="mb-4 font-bold text-xl text-gray-900 uppercase tracking-wide border-b-2 border-gray-200 pb-2">
+              Professional Experience
+            </h2>
+            <div className="space-y-6">
+              {workExperience.map((experience, index) => (
+                <div key={experience.id || `experience-${index}`} className="">
+                  {/* Job Title and Company */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900">
+                        {experience.position}
+                      </h3>
+                      <div className="text-gray-700 font-medium">
+                        {experience.company}
+                        {experience.location && (
+                          <span className="text-gray-500 ml-2">
+                            • {experience.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-gray-600 text-sm font-medium ml-4">
+                      {experience.date}
+                    </div>
+                  </div>
+
+                  {/* Responsibilities/Achievements */}
+                  {experience.description && experience.description.length > 0 && (
+                    <ul className="mb-3 space-y-1">
+                      {experience.description.map((bullet, bulletIndex) => (
+                        <li key={bulletIndex} className="flex items-start text-gray-700 text-sm leading-relaxed">
+                          <span className="mr-3 mt-2 h-1.5 w-1.5 bg-gray-400 rounded-full flex-shrink-0"></span>
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Technologies */}
+                  {experience.technologies && experience.technologies.length > 0 && (
+                    <div className="mt-3">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-gray-600 font-medium text-sm mr-2">Technologies:</span>
+                        {experience.technologies.map((tech, techIndex) => (
+                          <span
+                            key={techIndex}
+                            className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
