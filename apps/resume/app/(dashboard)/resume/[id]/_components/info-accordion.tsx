@@ -19,7 +19,7 @@ import { EducationContent } from "./education-content";
 import { LayoutContent } from "./layout-content";
 import { ProjectsContent } from "./projects-content";
 import { SkillsContent } from "./skills-content";
-import { WorkContent } from "./work-content";
+import { WorkContent } from "./work/work-content";
 
 export function InfoAccordion() {
   return (

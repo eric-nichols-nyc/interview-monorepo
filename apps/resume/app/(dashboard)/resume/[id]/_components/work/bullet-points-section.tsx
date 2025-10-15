@@ -1,0 +1,121 @@
+"use client";
+
+import { Button } from "@repo/design-system/components/ui/button";
+import { Textarea } from "@repo/design-system/components/ui/textarea";
+import { GripVertical, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useState } from "react";
+
+type BulletPointsSectionProps = {
+  bulletPoints: string[];
+  onUpdate: (bulletPoints: string[]) => void;
+};
+
+const KEY_PREFIX_LENGTH = 20;
+
+export function BulletPointsSection({
+  bulletPoints,
+  onUpdate,
+}: BulletPointsSectionProps) {
+  const [newBulletPoint, setNewBulletPoint] = useState("");
+
+  const addBulletPoint = () => {
+    if (!newBulletPoint.trim()) {
+      return;
+    }
+    const updatedBulletPoints = [...bulletPoints, newBulletPoint.trim()];
+    onUpdate(updatedBulletPoints);
+    setNewBulletPoint("");
+  };
+
+  const deleteBulletPoint = (index: number) => {
+    const updatedBulletPoints = bulletPoints.filter((_, i) => i !== index);
+    onUpdate(updatedBulletPoints);
+  };
+
+  const updateBulletPoint = (index: number, text: string) => {
+    const updatedBulletPoints = [...bulletPoints];
+    updatedBulletPoints[index] = text;
+    onUpdate(updatedBulletPoints);
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-foreground text-sm">
+        Key Responsibilities & Achievements
+      </h3>
+
+      {/* Existing bullet points */}
+      <div className="space-y-3">
+        {bulletPoints.map((bulletPoint, index) => (
+          <div
+            className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50"
+            key={`bullet-${bulletPoint.slice(0, KEY_PREFIX_LENGTH)}-${index}`}
+          >
+            <button
+              aria-label="Drag to reorder"
+              className="mt-1 cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing"
+              type="button"
+            >
+              <GripVertical className="h-5 w-5" />
+            </button>
+            <Textarea
+              className="min-h-[60px] flex-1 resize-none border-none bg-transparent p-0 text-sm leading-relaxed focus-visible:ring-0"
+              onChange={(e) => updateBulletPoint(index, e.target.value)}
+              placeholder="Describe your responsibility or achievement..."
+              value={bulletPoint}
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                className="h-8 w-8 text-muted-foreground opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive md:opacity-0 md:group-hover:opacity-100"
+                onClick={() => deleteBulletPoint(index)}
+                size="icon"
+                title="Delete bullet point"
+                variant="ghost"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                className="h-8 w-8 text-accent opacity-100 transition-all hover:bg-accent/10 hover:text-accent/80 md:opacity-0 md:group-hover:opacity-100"
+                disabled
+                size="icon"
+                title="AI enhancement (coming soon)"
+                variant="ghost"
+              >
+                <Sparkles className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add new bullet point */}
+      <div className="rounded-lg border border-border border-dashed bg-card/50 p-4">
+        <div className="flex items-start gap-3">
+          <div className="mt-1">
+            <Plus className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <Textarea
+            className="min-h-[60px] flex-1 resize-none border-none bg-transparent p-0 text-sm placeholder:text-muted-foreground focus-visible:ring-0"
+            onChange={(e) => setNewBulletPoint(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                addBulletPoint();
+              }
+            }}
+            placeholder="Add a new responsibility or achievement..."
+            value={newBulletPoint}
+          />
+        </div>
+        {newBulletPoint.trim() && (
+          <div className="mt-3 flex justify-end">
+            <Button className="h-8" onClick={addBulletPoint} size="sm">
+              <Plus className="mr-1 h-3 w-3" />
+              Add Point
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

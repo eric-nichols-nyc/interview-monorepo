@@ -3,8 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { getResumeAction } from "../../../../actions/resume/get-resume";
-import { useResumeEditorStore } from "../../../../stores/resume-editor-store";
+import { 
+  useResumeEditorStore, 
+  useHasUnsavedChanges 
+} from "../../../../stores/resume-editor-store";
 import { ResumeCreator } from "./_components/resume-creator";
+import { useUnsavedChanges } from "../../../../hooks/use-unsaved-changes";
 
 export default function ResumePage({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string | null>(null);
@@ -27,6 +31,12 @@ export default function ResumePage({ params }: { params: { id: string } }) {
 
   // Initialize store when resume loads
   const { initializeResume, resetStore } = useResumeEditorStore();
+  const hasUnsavedChanges = useHasUnsavedChanges();
+  
+  // Warn about unsaved changes when navigating away
+  useUnsavedChanges(hasUnsavedChanges, {
+    message: "You have unsaved resume changes. Are you sure you want to leave?"
+  });
 
   useEffect(() => {
     if (result?.success && result.data) {
@@ -79,7 +89,15 @@ export default function ResumePage({ params }: { params: { id: string } }) {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
-        <h1 className="mb-2 font-bold text-3xl">{resume.name}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="font-bold text-3xl">{resume.name}</h1>
+          {hasUnsavedChanges && (
+            <div className="flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-amber-800">
+              <div className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="text-sm font-medium">Unsaved changes</span>
+            </div>
+          )}
+        </div>
         {resume.targetRole && (
           <p className="text-lg text-muted-foreground">{resume.targetRole}</p>
         )}
