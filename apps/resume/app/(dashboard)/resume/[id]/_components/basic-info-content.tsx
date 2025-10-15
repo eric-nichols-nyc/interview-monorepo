@@ -1,0 +1,149 @@
+"use client";
+
+import { Button } from "@repo/design-system/components/ui/button";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Label } from "@repo/design-system/components/ui/label";
+import { useResumeBasicInfo, useResumeEditorStore } from "../../../../../stores/resume-editor-store";
+import { useProfile } from "../../../../../hooks/queries/profile-queries";
+import { RefreshCw } from "lucide-react";
+
+export function BasicInfoContent() {
+  const basicInfo = useResumeBasicInfo();
+  const updateBasicInfo = useResumeEditorStore((state) => state.updateBasicInfo);
+  const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile();
+
+  // Handler to update a specific field
+  const handleFieldChange = (field: string, value: string) => {
+    updateBasicInfo({ [field]: value });
+  };
+
+  // Handler to fill from profile data
+  const handleFillFromProfile = async () => {
+    // If no profile loaded yet, try to fetch it first
+    if (!profile && !profileLoading) {
+      await refetchProfile();
+    }
+    
+    // Use the profile data (either existing or newly fetched)
+    const profileData = profile;
+    if (profileData) {
+      updateBasicInfo({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        email: profileData.email || '',
+        phoneNumber: profileData.phoneNumber || '',
+        location: profileData.location || '',
+        website: profileData.website || '',
+        linkedinUrl: profileData.linkedinUrl || '',
+        githubUrl: profileData.githubUrl || '',
+      });
+    }
+  };
+
+  return (
+    <div className="w-full pt-4">
+      <div className="mb-4 flex w-full items-center justify-between">
+        <Button 
+          className="h-[40px] w-full" 
+          size="sm" 
+          variant="outline"
+          onClick={handleFillFromProfile}
+          disabled={profileLoading}
+        >
+          {profileLoading ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Loading Profile...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Fill from Profile
+            </>
+          )}
+        </Button>
+      </div>
+      <div className="space-y-4 rounded-lg border bg-muted/50 p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input 
+              id="firstName" 
+              placeholder="Enter first name" 
+              value={basicInfo?.firstName || ''}
+              onChange={(e) => handleFieldChange('firstName', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input 
+              id="lastName" 
+              placeholder="Enter last name" 
+              value={basicInfo?.lastName || ''}
+              onChange={(e) => handleFieldChange('lastName', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input 
+              id="email" 
+              placeholder="email@example.com" 
+              type="email" 
+              value={basicInfo?.email || ''}
+              onChange={(e) => handleFieldChange('email', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input 
+              id="phone" 
+              placeholder="+1 (555) 000-0000" 
+              type="tel" 
+              value={basicInfo?.phoneNumber || ''}
+              onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input 
+              id="location" 
+              placeholder="City, State" 
+              value={basicInfo?.location || ''}
+              onChange={(e) => handleFieldChange('location', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="website">Website</Label>
+            <Input 
+              id="website" 
+              placeholder="https://example.com" 
+              type="url" 
+              value={basicInfo?.website || ''}
+              onChange={(e) => handleFieldChange('website', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <Input
+              id="linkedin"
+              placeholder="https://linkedin.com/in/username"
+              type="url"
+              value={basicInfo?.linkedinUrl || ''}
+              onChange={(e) => handleFieldChange('linkedinUrl', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="github">GitHub</Label>
+            <Input
+              id="github"
+              placeholder="https://github.com/username"
+              type="url"
+              value={basicInfo?.githubUrl || ''}
+              onChange={(e) => handleFieldChange('githubUrl', e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

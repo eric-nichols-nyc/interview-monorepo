@@ -1,9 +1,9 @@
-import { DesignSystemProvider } from "@repo/design-system";
 import { AuthProvider } from "@repo/auth/provider";
+import { DesignSystemProvider } from "@repo/design-system";
 import type { Metadata } from "next";
 import "./globals.css";
-import { Header } from "./components/header";
 import { QueryProvider } from "../components/providers/query-provider";
+import { Header } from "./components/header";
 
 export const metadata: Metadata = {
   title: "Resume Platform",
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <DesignSystemProvider>
           <AuthProvider>
