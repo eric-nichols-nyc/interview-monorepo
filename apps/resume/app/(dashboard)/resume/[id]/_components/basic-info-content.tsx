@@ -3,13 +3,16 @@
 import { Button } from "@repo/design-system/components/ui/button";
 import { Input } from "@repo/design-system/components/ui/input";
 import { Label } from "@repo/design-system/components/ui/label";
-import { useResumeBasicInfo, useResumeEditorStore } from "../../../../../stores/resume-editor-store";
+import { Textarea } from "@repo/design-system/components/ui/textarea";
+import { useResumeBasicInfo, useResumeEditorStore, useResumeProfessionalSummary } from "../../../../../stores/resume-editor-store";
 import { useProfile } from "../../../../../hooks/queries/profile-queries";
 import { RefreshCw } from "lucide-react";
 
 export function BasicInfoContent() {
   const basicInfo = useResumeBasicInfo();
+  const professionalSummary = useResumeProfessionalSummary();
   const updateBasicInfo = useResumeEditorStore((state) => state.updateBasicInfo);
+  const updateProfessionalSummary = useResumeEditorStore((state) => state.updateProfessionalSummary);
   const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile();
 
   // Handler to update a specific field
@@ -142,6 +145,22 @@ export function BasicInfoContent() {
               onChange={(e) => handleFieldChange('githubUrl', e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Professional Summary Section */}
+        <div className="space-y-2 mt-6">
+          <Label htmlFor="professionalSummary">Professional Summary</Label>
+          <Textarea 
+            id="professionalSummary" 
+            placeholder="Write a brief professional summary highlighting your key skills and experience..."
+            rows={4}
+            value={professionalSummary || ''}
+            onChange={(e) => updateProfessionalSummary(e.target.value)}
+            className="resize-none"
+          />
+          <p className="text-xs text-muted-foreground">
+            A concise overview of your professional background and key qualifications (2-4 sentences recommended).
+          </p>
         </div>
       </div>
     </div>

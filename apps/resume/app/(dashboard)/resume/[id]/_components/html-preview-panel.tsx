@@ -1,6 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useResumeBasicInfo, useResumeWorkExperience } from "../../../../../stores/resume-editor-store";
+import {
+  useResumeBasicInfo,
+  useResumeSkills,
+  useResumeWorkExperience,
+  useResumeProfessionalSummary,
+} from "../../../../../stores/resume-editor-store";
 
 // Regex for removing protocol from URLs
 const PROTOCOL_REGEX = /^https?:\/\//;
@@ -31,6 +36,8 @@ export function HtmlPreviewPanel() {
   const documentRef = useRef<HTMLDivElement>(null);
   const basicInfo = useResumeBasicInfo();
   const workExperience = useResumeWorkExperience();
+  const skills = useResumeSkills();
+  const professionalSummary = useResumeProfessionalSummary();
 
   // Calculate scale based on container size
   const calculateScale = () => {
@@ -42,8 +49,8 @@ export function HtmlPreviewPanel() {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
 
-    // A4 dimensions in pixels (at 96 DPI: 230mm = ~794px, 297mm = ~1123px)
-    const documentWidth = 870; // 210mm in pixels
+    // A4 dimensions in pixels (at 96 DPI: 210mm = ~794px, 297mm = ~1123px)
+    const documentWidth = 794; // 210mm in pixels (corrected)
     const documentHeight = 1123; // 297mm in pixels
 
     // Calculate scale factors for width and height
@@ -86,9 +93,9 @@ export function HtmlPreviewPanel() {
           className="bg-white shadow-2xl"
           ref={documentRef}
           style={{
-            width: "230mm",
+            width: "210mm", // Fixed: Match A4 width instead of 230mm
             minHeight: "297mm",
-            padding: "20mm",
+            padding: "12mm", // Match PDF padding for consistent text wrapping
             transform: `scale(${scale})`,
             transformOrigin: "top center",
           }}
@@ -133,16 +140,16 @@ export function HtmlPreviewPanel() {
       <div
         className="bg-white shadow-2xl"
         ref={documentRef}
-        style={{
-          width: "230mm",
-          minHeight: "297mm",
-          padding: "20mm",
-          transform: `scale(${scale})`,
-          transformOrigin: "top center",
-        }}
+          style={{
+            width: "210mm", // Fixed: Match A4 width instead of 230mm
+            minHeight: "297mm",
+            padding: "12mm", // Match PDF padding for consistent text wrapping
+            transform: `scale(${scale})`,
+            transformOrigin: "top center",
+          }}
       >
         {/* Header Section */}
-        <div className="mb-8 border-gray-200 border-b-2 pb-6 text-center">
+        <div className="mb-6 border-gray-200 border-b-2 pb-4 text-center">
           {/* Name */}
           <h1 className="mb-3 font-bold text-4xl text-gray-900">
             {basicInfo.firstName || "First Name"}{" "}
@@ -188,61 +195,118 @@ export function HtmlPreviewPanel() {
           </div>
         </div>
 
+        {/* Professional Summary Section */}
+        {professionalSummary && professionalSummary.trim() && (
+          <div className="mb-8">
+            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+              Professional Summary
+            </h2>
+            <p className="text-gray-700 text-sm leading-relaxed">
+              {professionalSummary}
+            </p>
+          </div>
+        )}
+
         {/* Work Experience Section */}
         {workExperience && workExperience.length > 0 && (
           <div className="mb-8">
-            <h2 className="mb-4 font-bold text-xl text-gray-900 uppercase tracking-wide border-b-2 border-gray-200 pb-2">
+            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
               Professional Experience
             </h2>
             <div className="space-y-6">
               {workExperience.map((experience, index) => (
-                <div key={experience.id || `experience-${index}`} className="">
+                <div className="" key={experience.id || `experience-${index}`}>
                   {/* Job Title and Company */}
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="mb-2 flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900">
+                      <h3 className="font-bold text-gray-900 text-lg">
                         {experience.position}
                       </h3>
-                      <div className="text-gray-700 font-medium">
+                      <div className="font-medium text-gray-700">
                         {experience.company}
                         {experience.location && (
-                          <span className="text-gray-500 ml-2">
+                          <span className="ml-2 text-gray-500">
                             • {experience.location}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="text-gray-600 text-sm font-medium ml-4">
+                    <div className="ml-4 font-medium text-gray-600 text-sm">
                       {experience.date}
                     </div>
                   </div>
 
                   {/* Responsibilities/Achievements */}
-                  {experience.description && experience.description.length > 0 && (
-                    <ul className="mb-3 space-y-1">
-                      {experience.description.map((bullet, bulletIndex) => (
-                        <li key={bulletIndex} className="flex items-start text-gray-700 text-sm leading-relaxed">
-                          <span className="mr-3 mt-2 h-1.5 w-1.5 bg-gray-400 rounded-full flex-shrink-0"></span>
-                          <span>{bullet}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {experience.description &&
+                    experience.description.length > 0 && (
+                      <ul className="mb-3 space-y-1">
+                        {experience.description.map((bullet, bulletIndex) => (
+                          <li
+                            className="flex items-start text-gray-700 text-sm leading-relaxed"
+                            key={bulletIndex}
+                          >
+                            <span className="mt-2 mr-3 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                   {/* Technologies */}
-                  {experience.technologies && experience.technologies.length > 0 && (
-                    <div className="mt-3">
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-gray-600 font-medium text-sm mr-2">Technologies:</span>
-                        {experience.technologies.map((tech, techIndex) => (
-                          <span
-                            key={techIndex}
-                            className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium"
-                          >
-                            {tech}
+                  {experience.technologies &&
+                    experience.technologies.length > 0 && (
+                      <div className="mt-3">
+                        <div className="flex flex-wrap gap-2">
+                          <span className="mr-2 font-medium text-gray-600 text-sm">
+                            Technologies:
                           </span>
-                        ))}
+                          {experience.technologies.map((tech, techIndex) => (
+                            <span
+                              className="inline-block rounded bg-gray-100 px-2 py-1 font-medium text-gray-700 text-xs"
+                              key={techIndex}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+                    )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Skills Section */}
+        {skills && skills.length > 0 && (
+          <div className="mb-8">
+            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+              Skills
+            </h2>
+            <div className="space-y-4">
+              {skills.map((skillCategory, categoryIndex) => (
+                <div
+                  className=""
+                  key={skillCategory.id || `category-${categoryIndex}`}
+                >
+                  {/* Category Name */}
+                  {skillCategory.category && (
+                    <h3 className="mb-2 font-bold text-base text-gray-900">
+                      {skillCategory.category}
+                    </h3>
+                  )}
+
+                  {/* Skills List */}
+                  {skillCategory.items && skillCategory.items.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {skillCategory.items.map((skill, skillIndex) => (
+                        <span
+                          className="inline-block rounded-full bg-gray-100 px-3 py-1 font-medium text-gray-700 text-sm"
+                          key={skillIndex}
+                        >
+                          {skill}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>

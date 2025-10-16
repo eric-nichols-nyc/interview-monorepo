@@ -1,18 +1,14 @@
 "use client";
 
 import { Button } from "@repo/design-system/components/ui/button";
-import { 
-  Upload, 
-  Download, 
-  Save, 
-  Loader2 
-} from "lucide-react";
-import { 
-  useResumeEditorStore, 
-  useHasUnsavedChanges, 
+import { Loader2, Save, Upload } from "lucide-react";
+import {
+  useCanSave,
+  useHasUnsavedChanges,
   useIsAutoSaving,
-  useCanSave 
+  useResumeEditorStore,
 } from "../../../../../stores/resume-editor-store";
+import { ExportToPdfButton } from "./export-to-pdf-button";
 
 export function EditorActionsButtons() {
   const saveToDatabase = useResumeEditorStore((state) => state.saveToDatabase);
@@ -28,33 +24,25 @@ export function EditorActionsButtons() {
     <div className="flex items-center gap-2">
       {/* Import Button - Disabled for now */}
       <Button
-        variant="outline"
-        size="sm"
-        disabled={true}
         className="opacity-50"
+        disabled={true}
+        size="sm"
+        variant="outline"
       >
         <Upload className="mr-2 h-4 w-4" />
         Import
       </Button>
 
       {/* Download Button - Disabled for now */}
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={true}
-        className="opacity-50"
-      >
-        <Download className="mr-2 h-4 w-4" />
-        Download
-      </Button>
+      <ExportToPdfButton />
 
       {/* Save Button - Connected to store */}
       <Button
-        variant="default"
-        size="sm"
-        onClick={handleSave}
-        disabled={!canSave || isAutoSaving}
         className={hasUnsavedChanges ? "" : "opacity-60"}
+        disabled={!canSave || isAutoSaving}
+        onClick={handleSave}
+        size="sm"
+        variant="default"
       >
         {isAutoSaving ? (
           <>

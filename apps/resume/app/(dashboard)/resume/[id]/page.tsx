@@ -1,14 +1,24 @@
 "use client";
 
+import { Button } from "@repo/design-system/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@repo/design-system/components/ui/sheet";
 import { useQuery } from "@tanstack/react-query";
+import { Bug } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getResumeAction } from "../../../../actions/resume/get-resume";
-import { 
-  useResumeEditorStore, 
-  useHasUnsavedChanges 
+import { useUnsavedChanges } from "../../../../hooks/use-unsaved-changes";
+import {
+  useHasUnsavedChanges,
+  useResumeEditorStore,
 } from "../../../../stores/resume-editor-store";
 import { ResumeCreator } from "./_components/resume-creator";
-import { useUnsavedChanges } from "../../../../hooks/use-unsaved-changes";
 
 export default function ResumePage({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string | null>(null);
@@ -25,17 +35,17 @@ export default function ResumePage({ params }: { params: { id: string } }) {
   // Query for resume data
   const { data: result, isLoading } = useQuery({
     queryKey: ["resume", id],
-    queryFn: () => getResumeAction(id!),
+    queryFn: () => getResumeAction(id ?? ""),
     enabled: !!id,
   });
 
   // Initialize store when resume loads
   const { initializeResume, resetStore } = useResumeEditorStore();
   const hasUnsavedChanges = useHasUnsavedChanges();
-  
+
   // Warn about unsaved changes when navigating away
   useUnsavedChanges(hasUnsavedChanges, {
-    message: "You have unsaved resume changes. Are you sure you want to leave?"
+    message: "You have unsaved resume changes. Are you sure you want to leave?",
   });
 
   useEffect(() => {
@@ -51,7 +61,7 @@ export default function ResumePage({ params }: { params: { id: string } }) {
     };
   }, [resetStore]);
 
-  if (!id || isLoading) {
+  if (!id || isLoading || !result) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -94,7 +104,7 @@ export default function ResumePage({ params }: { params: { id: string } }) {
           {hasUnsavedChanges && (
             <div className="flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-amber-800">
               <div className="h-2 w-2 rounded-full bg-amber-500" />
-              <span className="text-sm font-medium">Unsaved changes</span>
+              <span className="font-medium text-sm">Unsaved changes</span>
             </div>
           )}
         </div>
@@ -107,12 +117,31 @@ export default function ResumePage({ params }: { params: { id: string } }) {
         <ResumeCreator />
       </div>
 
-      <div className="mt-6 rounded-lg border bg-card p-6">
-        <h2 className="mb-4 font-semibold text-xl">Resume Data (Debug)</h2>
-        <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">
-          {JSON.stringify(resume, null, 2)}
-        </pre>
-      </div>
+      {/* Fixed Debug Button */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            className="fixed right-6 bottom-6 h-12 w-12 rounded-full shadow-lg"
+            size="icon"
+            variant="secondary"
+          >
+            <Bug className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="h-[80vh]" side="bottom">
+          <SheetHeader>
+            <SheetTitle>Resume Data (Debug)</SheetTitle>
+            <SheetDescription>
+              View the complete resume data structure
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 overflow-auto">
+            <pre className="rounded-md bg-muted p-4 text-sm">
+              {JSON.stringify(resume, null, 2)}
+            </pre>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

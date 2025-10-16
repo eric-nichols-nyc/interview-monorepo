@@ -2,6 +2,22 @@
 
 ## Common Tasks
 
+### Export Resume to PDF
+
+```typescript
+// The PDF export button is already implemented
+// Click the "Export to PDF" button to download
+// File will be named: FirstName_LastName_Resume.pdf
+
+// To customize PDF styling:
+// Edit: app/(dashboard)/resume/[id]/_components/resume-pdf.tsx
+
+// The PDF uses the same data as the HTML preview:
+const basicInfo = useResumeBasicInfo();
+const workExperience = useResumeWorkExperience();
+const skills = useResumeSkills();
+```
+
 ### Add a New Resume Section
 
 1. **Update the store with new selector:**
@@ -181,10 +197,15 @@ Key files you'll work with:
 │   ├── page.tsx                      ← Main page
 │   └── _components/
 │       ├── *-content.tsx             ← Section editors
+│       ├── resume-pdf.tsx            ← PDF generation
+│       ├── export-to-pdf-button.tsx  ← PDF export
 │       └── info-accordion.tsx        ← Navigation
 ├── hooks/queries/
 │   ├── resume-queries.ts             ← Data fetching
 │   └── profile-queries.ts            ← Profile data
+├── docs/
+│   ├── pdf-export-system.md          ← PDF documentation
+│   └── quick-reference.md            ← This file
 └── types/
     ├── resume.ts                     ← Type definitions
     └── profile.ts                    ← Profile types
@@ -201,3 +222,6 @@ When adding new features:
 - [ ] Are error states handled properly?
 - [ ] Is the UI responsive?
 - [ ] Do form validations work?
+- [ ] Does PDF export work correctly?
+- [ ] Does PDF styling match HTML preview?
+- [ ] Are PDF filenames generated properly?
