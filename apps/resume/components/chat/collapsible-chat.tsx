@@ -19,6 +19,7 @@ import { cn } from "@repo/design-system/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { Maximize2, MessageCircle, Minimize2, Send, X } from "lucide-react";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useResumeData } from "../../stores/resume-editor-store";
 
 export type CollapsibleChatProps = {
   /** Title of the chat */
@@ -50,10 +51,28 @@ export function CollapsibleChat({
   placeholder = "Type a message...",
   position = "bottom-right",
 }: CollapsibleChatProps) {
+  const resume = useResumeData();
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [isMaximized, setIsMaximized] = useState(defaultMaximized);
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState<string>(
+    "how can I make my resume better?"
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Extract only the fields needed for AI context
+  const resumeContext = resume
+    ? {
+        targetRole: resume.targetRole,
+        firstName: resume.firstName,
+        lastName: resume.lastName,
+        email: resume.email,
+        professionalSummary: resume.professionalSummary,
+        workExperience: resume.workExperience,
+        education: resume.education,
+        skills: resume.skills,
+        projects: resume.projects,
+      }
+    : null;
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -72,10 +91,15 @@ export function CollapsibleChat({
 
   const handleSendMessage = () => {
     if (input.trim() && !isLoading) {
-      sendMessage({
-        role: "user" as const,
-        parts: [{ type: "text", text: input }],
-      });
+      sendMessage(
+        {
+          role: "user" as const,
+          parts: [{ type: "text", text: input }],
+        },
+        {
+          body: { resume: resumeContext },
+        }
+      );
       setInput("");
     }
   };

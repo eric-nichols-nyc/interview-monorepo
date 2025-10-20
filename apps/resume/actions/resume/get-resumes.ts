@@ -21,17 +21,6 @@ export async function getResumesAction(): Promise<ActionResult<Resume[]>> {
 
     const resumes = await prisma.resume.findMany({
       where: { userId },
-      select: {
-        id: true,
-        userId: true,
-        jobId: true,
-        isBaseResume: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-        resumeTitle: true,
-        targetRole: true,
-      },
       orderBy: { updatedAt: "desc" },
     });
 
