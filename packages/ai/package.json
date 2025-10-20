@@ -11,7 +11,7 @@
     "@ai-sdk/openai": "^2.0.42",
     "@google/genai": "^1.23.0",
     "@t3-oss/env-nextjs": "^0.13.8",
-    "ai": "^5.0.60",
+    "ai": "5.0.26",
     "react": "19.2.0",
     "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.3.1",

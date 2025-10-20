@@ -5,6 +5,10 @@ import {
   useResumeSkills,
   useResumeWorkExperience,
   useResumeProfessionalSummary,
+  useResumeEducation,
+  useResumeProjects,
+  useResumeCertifications,
+  useResumeSectionOrder,
 } from "../../../../../stores/resume-editor-store";
 
 // Regex for removing protocol from URLs
@@ -38,6 +42,10 @@ export function HtmlPreviewPanel() {
   const workExperience = useResumeWorkExperience();
   const skills = useResumeSkills();
   const professionalSummary = useResumeProfessionalSummary();
+  const education = useResumeEducation();
+  const projects = useResumeProjects();
+  const certifications = useResumeCertifications();
+  const sectionOrder = useResumeSectionOrder();
 
   // Calculate scale based on container size
   const calculateScale = () => {
@@ -132,6 +140,257 @@ export function HtmlPreviewPanel() {
     },
   ].filter(Boolean);
 
+  // Section renderers map
+  const sectionRenderers: Record<string, () => React.ReactElement | null> = {
+    professional_summary: () =>
+      professionalSummary && professionalSummary.trim() ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Professional Summary
+          </h2>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {professionalSummary}
+          </p>
+        </div>
+      ) : null,
+
+    work_experience: () =>
+      workExperience && workExperience.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Professional Experience
+          </h2>
+          <div className="space-y-6">
+            {workExperience.map((experience: any, index: number) => (
+              <div className="" key={experience.id || `experience-${index}`}>
+                {/* Job Title and Company */}
+                <div className="mb-2 flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">
+                      {experience.position}
+                    </h3>
+                    <div className="font-medium text-gray-700">
+                      {experience.company}
+                      {experience.location && (
+                        <span className="ml-2 text-gray-500">
+                          • {experience.location}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-4 font-medium text-gray-600 text-sm">
+                    {experience.date}
+                  </div>
+                </div>
+
+                {/* Responsibilities/Achievements */}
+                {experience.description && experience.description.length > 0 && (
+                  <ul className="mb-3 space-y-1">
+                    {experience.description.map((bullet: string, bulletIndex: number) => (
+                      <li
+                        className="flex items-start text-gray-700 text-sm leading-relaxed"
+                        key={bulletIndex}
+                      >
+                        <span className="mt-2 mr-3 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Technologies */}
+                {experience.technologies && experience.technologies.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="mr-2 font-medium text-gray-600 text-sm">
+                        Technologies:
+                      </span>
+                      {experience.technologies.map((tech: string, techIndex: number) => (
+                        <span
+                          className="inline-block rounded bg-gray-100 px-2 py-1 font-medium text-gray-700 text-xs"
+                          key={techIndex}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+
+    skills: () =>
+      skills && skills.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Skills
+          </h2>
+          <div className="space-y-4">
+            {skills.map((skillCategory: any, categoryIndex: number) => (
+              <div
+                className=""
+                key={skillCategory.id || `category-${categoryIndex}`}
+              >
+                {/* Category Name */}
+                {skillCategory.category && (
+                  <h3 className="mb-2 font-bold text-base text-gray-900">
+                    {skillCategory.category}
+                  </h3>
+                )}
+
+                {/* Skills List */}
+                {skillCategory.items && skillCategory.items.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {skillCategory.items.map((skill: string, skillIndex: number) => (
+                      <span
+                        className="inline-block rounded-full bg-gray-100 px-3 py-1 font-medium text-gray-700 text-sm"
+                        key={skillIndex}
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+
+    projects: () =>
+      projects && projects.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Projects
+          </h2>
+          <div className="space-y-6">
+            {projects.map((project: any, index: number) => (
+              <div className="" key={project.id || `project-${index}`}>
+                <div className="mb-2 flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">
+                      {project.name}
+                    </h3>
+                    {project.url && (
+                      <a
+                        className="text-blue-600 hover:underline text-sm"
+                        href={project.url}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {stripProtocol(project.url)}
+                      </a>
+                    )}
+                  </div>
+                  {project.date && (
+                    <div className="ml-4 font-medium text-gray-600 text-sm">
+                      {project.date}
+                    </div>
+                  )}
+                </div>
+                {project.description && (
+                  <p className="mb-3 text-gray-700 text-sm leading-relaxed">
+                    {project.description}
+                  </p>
+                )}
+                {project.technologies && project.technologies.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="mr-2 font-medium text-gray-600 text-sm">
+                        Technologies:
+                      </span>
+                      {project.technologies.map((tech: string, techIndex: number) => (
+                        <span
+                          className="inline-block rounded bg-gray-100 px-2 py-1 font-medium text-gray-700 text-xs"
+                          key={techIndex}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+
+    education: () =>
+      education && education.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Education
+          </h2>
+          <div className="space-y-6">
+            {education.map((edu: any, index: number) => (
+              <div className="" key={edu.id || `education-${index}`}>
+                <div className="mb-2 flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">
+                      {edu.degree}
+                    </h3>
+                    <div className="font-medium text-gray-700">
+                      {edu.institution}
+                      {edu.location && (
+                        <span className="ml-2 text-gray-500">
+                          • {edu.location}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-4 font-medium text-gray-600 text-sm">
+                    {edu.date}
+                  </div>
+                </div>
+                {edu.details && (
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {edu.details}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+
+    certifications: () =>
+      certifications && certifications.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
+            Certifications
+          </h2>
+          <div className="space-y-4">
+            {certifications.map((cert: any, index: number) => (
+              <div className="" key={cert.id || `certification-${index}`}>
+                <div className="mb-2 flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-lg">
+                      {cert.name}
+                    </h3>
+                    <div className="font-medium text-gray-700">
+                      {cert.issuer}
+                    </div>
+                  </div>
+                  <div className="ml-4 font-medium text-gray-600 text-sm">
+                    {cert.date}
+                  </div>
+                </div>
+                {cert.details && (
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {cert.details}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+  };
+
   return (
     <div
       className="flex h-full justify-center overflow-auto border border-gray-300 bg-gray-100 p-5"
@@ -195,125 +454,13 @@ export function HtmlPreviewPanel() {
           </div>
         </div>
 
-        {/* Professional Summary Section */}
-        {professionalSummary && professionalSummary.trim() && (
-          <div className="mb-8">
-            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
-              Professional Summary
-            </h2>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {professionalSummary}
-            </p>
-          </div>
-        )}
-
-        {/* Work Experience Section */}
-        {workExperience && workExperience.length > 0 && (
-          <div className="mb-8">
-            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
-              Professional Experience
-            </h2>
-            <div className="space-y-6">
-              {workExperience.map((experience, index) => (
-                <div className="" key={experience.id || `experience-${index}`}>
-                  {/* Job Title and Company */}
-                  <div className="mb-2 flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 text-lg">
-                        {experience.position}
-                      </h3>
-                      <div className="font-medium text-gray-700">
-                        {experience.company}
-                        {experience.location && (
-                          <span className="ml-2 text-gray-500">
-                            • {experience.location}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="ml-4 font-medium text-gray-600 text-sm">
-                      {experience.date}
-                    </div>
-                  </div>
-
-                  {/* Responsibilities/Achievements */}
-                  {experience.description &&
-                    experience.description.length > 0 && (
-                      <ul className="mb-3 space-y-1">
-                        {experience.description.map((bullet, bulletIndex) => (
-                          <li
-                            className="flex items-start text-gray-700 text-sm leading-relaxed"
-                            key={bulletIndex}
-                          >
-                            <span className="mt-2 mr-3 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" />
-                            <span>{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                  {/* Technologies */}
-                  {experience.technologies &&
-                    experience.technologies.length > 0 && (
-                      <div className="mt-3">
-                        <div className="flex flex-wrap gap-2">
-                          <span className="mr-2 font-medium text-gray-600 text-sm">
-                            Technologies:
-                          </span>
-                          {experience.technologies.map((tech, techIndex) => (
-                            <span
-                              className="inline-block rounded bg-gray-100 px-2 py-1 font-medium text-gray-700 text-xs"
-                              key={techIndex}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Skills Section */}
-        {skills && skills.length > 0 && (
-          <div className="mb-8">
-            <h2 className="mb-4 border-gray-200 border-b-2 pb-2 font-bold text-gray-900 text-xl uppercase tracking-wide">
-              Skills
-            </h2>
-            <div className="space-y-4">
-              {skills.map((skillCategory, categoryIndex) => (
-                <div
-                  className=""
-                  key={skillCategory.id || `category-${categoryIndex}`}
-                >
-                  {/* Category Name */}
-                  {skillCategory.category && (
-                    <h3 className="mb-2 font-bold text-base text-gray-900">
-                      {skillCategory.category}
-                    </h3>
-                  )}
-
-                  {/* Skills List */}
-                  {skillCategory.items && skillCategory.items.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {skillCategory.items.map((skill, skillIndex) => (
-                        <span
-                          className="inline-block rounded-full bg-gray-100 px-3 py-1 font-medium text-gray-700 text-sm"
-                          key={skillIndex}
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Dynamic Sections based on section order */}
+        {sectionOrder.map((sectionName: string) => {
+          const renderSection = sectionRenderers[sectionName];
+          return renderSection ? (
+            <div key={sectionName}>{renderSection()}</div>
+          ) : null;
+        })}
       </div>
     </div>
   );

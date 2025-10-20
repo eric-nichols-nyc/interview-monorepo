@@ -39,6 +39,8 @@ type ResumeEditorState = {
   updateProfessionalSummary: (summary: string) => void;
   updateName: (name: string) => void;
   updateTargetRole: (targetRole: string) => void;
+  updateSectionOrder: (order: string[]) => void;
+  reorderSection: (fromIndex: number, toIndex: number) => void;
 
   // Save operations
   saveToDatabase: () => Promise<void>;
@@ -130,6 +132,18 @@ export const useResumeEditorStore = create<ResumeEditorState>((set, get) => ({
   updateName: (name) => get().updateSection("name", name),
   updateTargetRole: (targetRole) =>
     get().updateSection("targetRole", targetRole),
+  updateSectionOrder: (order) =>
+    get().updateSection("sectionOrder", order),
+  reorderSection: (fromIndex, toIndex) => {
+    const state = get();
+    if (!state.resume?.sectionOrder) return;
+    
+    const currentOrder = [...state.resume.sectionOrder];
+    const [movedSection] = currentOrder.splice(fromIndex, 1);
+    currentOrder.splice(toIndex, 0, movedSection);
+    
+    get().updateSection("sectionOrder", currentOrder);
+  },
 
   // Save operations
   saveToDatabase: async () => {
@@ -227,18 +241,25 @@ const selectCanSave = (state: ResumeEditorState) =>
   !state.isSaving &&
   !!state.resume;
 
+// Stable default arrays to prevent infinite loops
+const EMPTY_ARRAY: never[] = [];
+const DEFAULT_SECTION_ORDER = ["professional_summary", "work_experience", "skills", "projects", "education", "certifications"];
+
 // Stable section selectors
 const selectWorkExperience = (state: ResumeEditorState) =>
-  state.resume?.workExperience || [];
+  state.resume?.workExperience || EMPTY_ARRAY;
 const selectEducation = (state: ResumeEditorState) =>
-  state.resume?.education || [];
-const selectSkills = (state: ResumeEditorState) => state.resume?.skills || [];
+  state.resume?.education || EMPTY_ARRAY;
+const selectSkills = (state: ResumeEditorState) => 
+  state.resume?.skills || EMPTY_ARRAY;
 const selectProjects = (state: ResumeEditorState) =>
-  state.resume?.projects || [];
+  state.resume?.projects || EMPTY_ARRAY;
 const selectCertifications = (state: ResumeEditorState) =>
-  state.resume?.certifications || [];
+  state.resume?.certifications || EMPTY_ARRAY;
 const selectProfessionalSummary = (state: ResumeEditorState) =>
   state.resume?.professionalSummary || "";
+const selectSectionOrder = (state: ResumeEditorState) =>
+  state.resume?.sectionOrder || DEFAULT_SECTION_ORDER;
 
 // Memoized basic info selector - returns null or the basic info object
 // Using JSON.stringify comparison to ensure stable reference when data hasn't changed
@@ -305,3 +326,5 @@ export const useResumeCertifications = () =>
   useResumeEditorStore(selectCertifications);
 export const useResumeProfessionalSummary = () =>
   useResumeEditorStore(selectProfessionalSummary);
+export const useResumeSectionOrder = () =>
+  useResumeEditorStore(selectSectionOrder);

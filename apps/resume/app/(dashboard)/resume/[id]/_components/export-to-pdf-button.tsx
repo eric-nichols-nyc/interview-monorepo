@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from "@repo/design-system/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { pdf } from '@react-pdf/renderer';
-import { ResumePDF } from './resume-pdf';
+import ResumePDF from './resume-pdf';
 import { useResumeBasicInfo } from '../../../../../stores/resume-editor-store';
 
 export function ExportToPdfButton() {

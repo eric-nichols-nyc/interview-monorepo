@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   Document,
   Font,
@@ -11,9 +12,13 @@ import {
 } from "@react-pdf/renderer";
 import {
   useResumeBasicInfo,
-  useResumeProfessionalSummary,
   useResumeSkills,
   useResumeWorkExperience,
+  useResumeProfessionalSummary,
+  useResumeEducation,
+  useResumeProjects,
+  useResumeCertifications,
+  useResumeSectionOrder,
 } from "../../../../../stores/resume-editor-store";
 import type {
   BasicInfo,
@@ -71,10 +76,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   section: {
-    marginBottom: 32,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: "bold",
     color: "#0f172a",
     marginBottom: 16,
@@ -85,37 +90,37 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   workItem: {
-    marginBottom: 28,
+    marginBottom: 8,
   },
   jobHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 10,
+    marginBottom: 6,
   },
   jobLeft: {
     flex: 1,
   },
   jobTitle: {
-    fontSize: 15,
+    fontSize: 10,
     fontWeight: "bold",
     color: "#0f172a",
     marginBottom: 4,
     lineHeight: 1.2,
   },
   company: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "normal",
     color: "#475569",
   },
   location: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#64748b",
     marginLeft: 8,
     fontWeight: 400,
   },
   dates: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "normal",
     color: "#64748b",
     marginLeft: 16,
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   bulletText: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#334155",
     lineHeight: 1.6,
     flex: 1,
@@ -149,7 +154,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   techHeader: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "normal",
     color: "#64748b",
     marginBottom: 8,
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   categoryTitle: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "bold",
     color: "#0f172a",
     marginBottom: 10,
@@ -185,7 +190,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   skillTag: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "normal",
     color: "#1e293b",
     backgroundColor: "#f8fafc",
@@ -196,7 +201,7 @@ const styles = StyleSheet.create({
     borderColor: "#e2e8f0",
   },
   summaryText: {
-    fontSize: 10.5,
+    fontSize: 10,
     color: '#334155',
     lineHeight: 1.5,
     textAlign: 'left',
@@ -220,11 +225,15 @@ function ContactItem({ children, showSeparator }: ContactItemProps) {
   );
 }
 
-export function ResumePDF() {
+export default function ResumePDF() {
   const basicInfo = useResumeBasicInfo();
   const workExperience = useResumeWorkExperience();
   const skills = useResumeSkills();
   const professionalSummary = useResumeProfessionalSummary();
+  const education = useResumeEducation();
+  const projects = useResumeProjects();
+  const certifications = useResumeCertifications();
+  const sectionOrder = useResumeSectionOrder();
 
   // Build contact info items array
   const contactItems = [
@@ -247,6 +256,209 @@ export function ResumePDF() {
       text: "GitHub",
     },
   ].filter(Boolean);
+
+  // Section renderers map
+  const sectionRenderers: Record<string, () => React.ReactElement | null> = {
+    professional_summary: () =>
+      professionalSummary && professionalSummary.trim() ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Professional Summary</Text>
+          <Text style={styles.summaryText}>{professionalSummary}</Text>
+        </View>
+      ) : null,
+
+    work_experience: () =>
+      workExperience && workExperience.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Professional Experience</Text>
+          {workExperience.map((experience: WorkExperience, index: number) => (
+            <View
+              key={experience.id || `experience-${index}`}
+              style={styles.workItem}
+            >
+              {/* Job Title and Company */}
+              <View style={styles.jobHeader}>
+                <View style={styles.jobLeft}>
+                  <Text style={styles.jobTitle}>{experience.position}</Text>
+                  <View
+                    style={{ flexDirection: "row", alignItems: "center" }}
+                  >
+                    <Text style={styles.company}>{experience.company}</Text>
+                    {experience.location && (
+                      <Text style={styles.location}>
+                        • {experience.location}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.dates}>{experience.date}</Text>
+              </View>
+
+              {/* Responsibilities/Achievements */}
+              {experience.description && experience.description.length > 0 && (
+                <View style={styles.description}>
+                  {experience.description.map(
+                    (bullet: string, bulletIndex: number) => (
+                      <View key={bulletIndex} style={styles.bulletPoint}>
+                        <View style={styles.bullet} />
+                        <Text style={styles.bulletText}>{bullet}</Text>
+                      </View>
+                    )
+                  )}
+                </View>
+              )}
+
+              {/* Technologies */}
+              {experience.technologies && experience.technologies.length > 0 && (
+                <View style={styles.technologies}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text style={styles.techHeader}>Technologies:</Text>
+                  </View>
+                  <View style={styles.techTags}>
+                    {experience.technologies.map(
+                      (tech: string, techIndex: number) => (
+                        <Text key={techIndex} style={styles.techTag}>
+                          {tech}
+                        </Text>
+                      )
+                    )}
+                  </View>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : null,
+
+    skills: () =>
+      skills && skills.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Skills</Text>
+          {skills.map((skillCategory: Skill, categoryIndex: number) => (
+            <View
+              key={skillCategory.id || `category-${categoryIndex}`}
+              style={styles.skillsCategory}
+            >
+              {/* Category Name */}
+              {skillCategory.category && (
+                <Text style={styles.categoryTitle}>
+                  {skillCategory.category}
+                </Text>
+              )}
+
+              {/* Skills List */}
+              {skillCategory.items && skillCategory.items.length > 0 && (
+                <View style={styles.skillTags}>
+                  {skillCategory.items.map(
+                    (skill: string, skillIndex: number) => (
+                      <Text key={skillIndex} style={styles.skillTag}>
+                        {skill}
+                      </Text>
+                    )
+                  )}
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : null,
+
+    projects: () =>
+      projects && projects.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Projects</Text>
+          {projects.map((project: any, index: number) => (
+            <View key={project.id || `project-${index}`} style={styles.workItem}>
+              <View style={styles.jobHeader}>
+                <View style={styles.jobLeft}>
+                  <Text style={styles.jobTitle}>{project.name}</Text>
+                  {project.url && (
+                    <Link src={project.url} style={styles.link}>
+                      <Text style={{ fontSize: 10, color: '#1e40af' }}>
+                        {stripProtocol(project.url)}
+                      </Text>
+                    </Link>
+                  )}
+                </View>
+                {project.date && (
+                  <Text style={styles.dates}>{project.date}</Text>
+                )}
+              </View>
+              {project.description && (
+                <Text style={styles.summaryText}>{project.description}</Text>
+              )}
+              {project.technologies && project.technologies.length > 0 && (
+                <View style={styles.technologies}>
+                  <Text style={styles.techHeader}>Technologies:</Text>
+                  <View style={styles.techTags}>
+                    {project.technologies.map((tech: string, techIndex: number) => (
+                      <Text key={techIndex} style={styles.techTag}>
+                        {tech}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : null,
+
+    education: () =>
+      education && education.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Education</Text>
+          {education.map((edu: any, index: number) => (
+            <View key={edu.id || `education-${index}`} style={styles.workItem}>
+              <View style={styles.jobHeader}>
+                <View style={styles.jobLeft}>
+                  <Text style={styles.jobTitle}>{edu.degree}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={styles.company}>{edu.institution}</Text>
+                    {edu.location && (
+                      <Text style={styles.location}>
+                        • {edu.location}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.dates}>{edu.date}</Text>
+              </View>
+              {edu.details && (
+                <Text style={styles.summaryText}>{edu.details}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : null,
+
+    certifications: () =>
+      certifications && certifications.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Certifications</Text>
+          {certifications.map((cert: any, index: number) => (
+            <View key={cert.id || `certification-${index}`} style={styles.workItem}>
+              <View style={styles.jobHeader}>
+                <View style={styles.jobLeft}>
+                  <Text style={styles.jobTitle}>{cert.name}</Text>
+                  <Text style={styles.company}>{cert.issuer}</Text>
+                </View>
+                <Text style={styles.dates}>{cert.date}</Text>
+              </View>
+              {cert.details && (
+                <Text style={styles.summaryText}>{cert.details}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : null,
+  };
 
   return (
     <Document>
@@ -293,119 +505,15 @@ export function ResumePDF() {
           </View>
         </View>
 
-        {/* Professional Summary Section */}
-        {professionalSummary && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Professional Summary</Text>
-            <Text style={styles.summaryText}>
-              {professionalSummary}
-            </Text>
-          </View>
-        )}
-
-        {/* Work Experience Section */}
-        {workExperience && workExperience.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Professional Experience</Text>
-            {workExperience.map((experience: WorkExperience, index: number) => (
-              <View
-                key={experience.id || `experience-${index}`}
-                style={styles.workItem}
-              >
-                {/* Job Title and Company */}
-                <View style={styles.jobHeader}>
-                  <View style={styles.jobLeft}>
-                    <Text style={styles.jobTitle}>{experience.position}</Text>
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <Text style={styles.company}>{experience.company}</Text>
-                      {experience.location && (
-                        <Text style={styles.location}>
-                          • {experience.location}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                  <Text style={styles.dates}>{experience.date}</Text>
-                </View>
-
-                {/* Responsibilities/Achievements */}
-                {experience.description &&
-                  experience.description.length > 0 && (
-                    <View style={styles.description}>
-                      {experience.description.map(
-                        (bullet: string, bulletIndex: number) => (
-                          <View key={bulletIndex} style={styles.bulletPoint}>
-                            <View style={styles.bullet} />
-                            <Text style={styles.bulletText}>{bullet}</Text>
-                          </View>
-                        )
-                      )}
-                    </View>
-                  )}
-
-                {/* Technologies */}
-                {experience.technologies &&
-                  experience.technologies.length > 0 && (
-                    <View style={styles.technologies}>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          marginBottom: 8,
-                        }}
-                      >
-                        <Text style={styles.techHeader}>Technologies:</Text>
-                      </View>
-                      <View style={styles.techTags}>
-                        {experience.technologies.map(
-                          (tech: string, techIndex: number) => (
-                            <Text key={techIndex} style={styles.techTag}>
-                              {tech}
-                            </Text>
-                          )
-                        )}
-                      </View>
-                    </View>
-                  )}
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Skills Section */}
-        {skills && skills.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Skills</Text>
-            {skills.map((skillCategory: Skill, categoryIndex: number) => (
-              <View
-                key={skillCategory.id || `category-${categoryIndex}`}
-                style={styles.skillsCategory}
-              >
-                {/* Category Name */}
-                {skillCategory.category && (
-                  <Text style={styles.categoryTitle}>
-                    {skillCategory.category}
-                  </Text>
-                )}
-
-                {/* Skills List */}
-                {skillCategory.items && skillCategory.items.length > 0 && (
-                  <View style={styles.skillTags}>
-                    {skillCategory.items.map(
-                      (skill: string, skillIndex: number) => (
-                        <Text key={skillIndex} style={styles.skillTag}>
-                          {skill}
-                        </Text>
-                      )
-                    )}
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        )}
+        {/* Dynamic Sections based on section order */}
+        {sectionOrder.map((sectionName: string) => {
+          const renderSection = sectionRenderers[sectionName];
+          return renderSection ? (
+            <React.Fragment key={sectionName}>
+              {renderSection()}
+            </React.Fragment>
+          ) : null;
+        })}
       </Page>
     </Document>
   );

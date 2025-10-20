@@ -1,5 +1,6 @@
 "use client";
 
+import { CollapsibleChat } from "../../../../components/chat/collapsible-chat";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Sheet,
@@ -19,7 +20,6 @@ import {
   useResumeEditorStore,
 } from "../../../../stores/resume-editor-store";
 import { ResumeCreator } from "./_components/resume-creator";
-
 export default function ResumePage({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string | null>(null);
 
@@ -121,7 +121,7 @@ export default function ResumePage({ params }: { params: { id: string } }) {
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            className="fixed right-6 bottom-6 h-12 w-12 rounded-full shadow-lg"
+            className="fixed bottom-6 left-6 h-12 w-12 rounded-full shadow-lg"
             size="icon"
             variant="secondary"
           >
@@ -142,6 +142,8 @@ export default function ResumePage({ params }: { params: { id: string } }) {
           </div>
         </SheetContent>
       </Sheet>
+
+      <CollapsibleChat />
     </div>
   );
 }

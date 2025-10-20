@@ -4,9 +4,18 @@ import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./providers/theme";
 
+export {
+  type ChatMessage,
+  CollapsibleChat,
+  type CollapsibleChatProps,
+} from "./components/collapsible-chat";
 // Export components
 export { Navigation } from "./components/navigation";
-export { UserAvatarDropdown, type UserAvatarDropdownProps, type ExternalLinkItem } from "./components/user-avatar-dropdown";
+export {
+  type ExternalLinkItem,
+  UserAvatarDropdown,
+  type UserAvatarDropdownProps,
+} from "./components/user-avatar-dropdown";
 
 type DesignSystemProviderProperties = ThemeProviderProps & {
   privacyUrl?: string;
