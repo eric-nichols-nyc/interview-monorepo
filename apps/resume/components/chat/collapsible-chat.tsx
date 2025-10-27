@@ -82,10 +82,9 @@ export function CollapsibleChat({
   // Log AI responses for testing
   useEffect(() => {
     if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === "assistant") {
-        console.log("🤖 AI Response:", lastMessage);
-        console.log("📝 Message parts:", lastMessage.parts);
+      const lastMessage = messages.at(-1);
+      if (lastMessage?.role === "assistant") {
+        // Console logs removed for production
       }
     }
   }, [messages]);

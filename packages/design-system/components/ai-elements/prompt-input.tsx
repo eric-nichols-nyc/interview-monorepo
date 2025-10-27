@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/components/ui/button";
+import { Button } from "@repo/design-system/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -9,36 +9,36 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/components/ui/command";
+} from "@repo/design-system/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/components/ui/dropdown-menu";
+} from "@repo/design-system/components/ui/dropdown-menu";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@repo/components/ui/hover-card";
+} from "@repo/design-system/components/ui/hover-card";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
-} from "@repo/components/ui/input-group";
+} from "@repo/design-system/components/ui/input-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/components/ui/select";
+} from "@repo/design-system/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@repo/components/ui/tooltip";
+} from "@repo/design-system/components/ui/tooltip";
 import { cn } from "@repo/design-system/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
@@ -163,7 +163,9 @@ export function PromptInputProvider({
 
   const add = useCallback((files: File[] | FileList) => {
     const incoming = Array.from(files);
-    if (incoming.length === 0) return;
+    if (incoming.length === 0) {
+      return;
+    }
 
     setAttachements((prev) =>
       prev.concat(
@@ -181,14 +183,20 @@ export function PromptInputProvider({
   const remove = useCallback((id: string) => {
     setAttachements((prev) => {
       const found = prev.find((f) => f.id === id);
-      if (found?.url) URL.revokeObjectURL(found.url);
+      if (found?.url) {
+        URL.revokeObjectURL(found.url);
+      }
       return prev.filter((f) => f.id !== id);
     });
   }, []);
 
   const clear = useCallback(() => {
     setAttachements((prev) => {
-      for (const f of prev) if (f.url) URL.revokeObjectURL(f.url);
+      for (const f of prev) {
+        if (f.url) {
+          URL.revokeObjectURL(f.url);
+        }
+      }
       return [];
     });
   }, []);
@@ -284,13 +292,16 @@ export function PromptInputAttachment({
       {...props}
     >
       {mediaType === "image" ? (
-        <img
-          alt={data.filename || "attachment"}
-          className="size-full rounded-md object-cover"
-          height={56}
-          src={data.url}
-          width={56}
-        />
+        <>
+          {/* biome-ignore lint: img element is needed for file attachments */}
+          <img
+            alt={data.filename || "attachment"}
+            className="size-full rounded-md object-cover"
+            height={56}
+            src={data.url}
+            width={56}
+          />
+        </>
       ) : (
         <div className="flex size-full max-w-full cursor-pointer items-center justify-start gap-2 overflow-hidden px-2 text-muted-foreground">
           <PaperclipIcon className="size-4 shrink-0" />

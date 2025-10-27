@@ -4,6 +4,13 @@
   "javascript": {
     "globals": ["Liveblocks"]
   },
+  "linter": {
+    "rules": {
+      "nursery": {
+        "noDeprecatedImports": "error"
+      }
+    }
+  },
   "files": {
     "includes": [
       "**/*",
@@ -16,7 +23,8 @@
       "!docs/hooks",
       "!apps/docs/**/*.json",
       "!apps/email/.react-email",
-      "!packages/cms/basehub-types.d.ts"
+      "!packages/cms/basehub-types.d.ts",
+      "!packages/design-system/components/ai-elements"
     ]
   }
 }

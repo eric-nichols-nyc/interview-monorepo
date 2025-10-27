@@ -52,7 +52,12 @@ export function AnalysisCard({ data }: AnalysisCardProps) {
               <div className="h-2 w-full rounded-full bg-slate-200">
                 <div
                   className="h-2 rounded-full bg-blue-500 transition-all duration-500"
-                  style={{ width: `${(cat.score / cat.max) * 100}%` }}
+                  style={{
+                    width: `${
+                      // biome-ignore lint/style/noMagicNumbers: 100 is the standard percentage multiplier
+                      (cat.score / cat.max) * 100
+                    }}%`,
+                  }}
                 />
               </div>
             </div>
