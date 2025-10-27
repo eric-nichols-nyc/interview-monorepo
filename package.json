@@ -23,7 +23,11 @@
     "bump-deps": "npx npm-check-updates --deep -u -x react-day-picker,recharts",
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design-system",
     "migrate": "cd packages/database && pnpm analyze",
-    "clean": "git clean -xdf node_modules"
+    "clean": "git clean -xdf node_modules",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "lint:staged": "biome check --write --staged",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@auto-it/first-time-contributor": "^11.3.0",
@@ -31,6 +35,7 @@
     "@repo/typescript-config": "workspace:*",
     "@turbo/gen": "^2.5.8",
     "@types/node": "^24.7.0",
+    "husky": "^9.1.7",
     "tsup": "^8.5.0",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3",

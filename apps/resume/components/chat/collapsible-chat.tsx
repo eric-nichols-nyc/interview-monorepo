@@ -1,10 +1,6 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import {
-  Avatar,
-  AvatarFallback,
-} from "@repo/design-system/components/ui/avatar";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Card,
@@ -20,6 +16,7 @@ import { DefaultChatTransport } from "ai";
 import { Maximize2, MessageCircle, Minimize2, Send, X } from "lucide-react";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useResumeData } from "../../stores/resume-editor-store";
+import { LoadingMessage, MessageRenderer } from "./message-renderer";
 
 export type CollapsibleChatProps = {
   /** Title of the chat */
@@ -81,6 +78,17 @@ export function CollapsibleChat({
   });
 
   const isLoading = (status as string) === "in_progress";
+
+  // Log AI responses for testing
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === "assistant") {
+        console.log("🤖 AI Response:", lastMessage);
+        console.log("📝 Message parts:", lastMessage.parts);
+      }
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -187,83 +195,10 @@ export function CollapsibleChat({
                 </div>
               ) : (
                 messages.map((message) => (
-                  <div
-                    className={cn(
-                      "flex gap-3",
-                      message.role === "user" && "flex-row-reverse"
-                    )}
-                    key={message.id}
-                  >
-                    <Avatar className="size-8 shrink-0">
-                      <AvatarFallback>
-                        {message.role === "user" ? "You" : "AI"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div
-                      className={cn(
-                        "flex max-w-[70%] flex-col gap-1",
-                        message.role === "user" && "items-end"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex items-baseline gap-2",
-                          message.role === "user" && "flex-row-reverse"
-                        )}
-                      >
-                        <span className="font-medium text-xs">
-                          {message.role === "user" ? "You" : "Assistant"}
-                        </span>
-                        <span className="text-muted-foreground text-xs">
-                          {new Date().toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                      <div
-                        className={cn(
-                          "whitespace-pre-wrap rounded-lg px-3 py-2 text-sm",
-                          message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        )}
-                      >
-                        {message.parts
-                          ?.map((part) =>
-                            part.type === "text" ? part.text : ""
-                          )
-                          .join("") || ""}
-                      </div>
-                    </div>
-                  </div>
+                  <MessageRenderer key={message.id} message={message} />
                 ))
               )}
-              {isLoading && (
-                <div className="flex gap-3">
-                  <Avatar className="size-8 shrink-0">
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                  <div className="flex max-w-[70%] flex-col gap-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-medium text-xs">Assistant</span>
-                      <span className="text-muted-foreground text-xs">
-                        {new Date().toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <div className="rounded-lg bg-muted px-3 py-2 text-sm">
-                      <div className="flex space-x-1">
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.3s]" />
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.15s]" />
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-gray-500" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {isLoading && <LoadingMessage />}
               <div ref={scrollRef} />
             </div>
           </ScrollArea>

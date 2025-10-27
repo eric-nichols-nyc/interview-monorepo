@@ -1,5 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { getResumeAssistantPrompt } from "../../lib/ai/prompts";
 
 type ResumeContext = {
   targetRole: string | null;
@@ -7,10 +8,10 @@ type ResumeContext = {
   lastName: string | null;
   email: string | null;
   professionalSummary: string | null;
-  workExperience: any;
-  education: any;
-  skills: any;
-  projects: any;
+  workExperience: unknown;
+  education: unknown;
+  skills: unknown;
+  projects: unknown;
 };
 
 export async function POST(req: Request) {
@@ -39,25 +40,10 @@ export async function POST(req: Request) {
     // Convert UI messages to model messages
     const modelMessages = convertToModelMessages(messages);
 
-    const systemPrompt = resume
-      ? `You are a helpful resume assistant. You have access to the user's resume data below. Use this information to provide PERSONALIZED advice. DO NOT ask them to upload or paste their resume.
-
-USER'S RESUME DATA:
-Target Role: ${resume.targetRole}
-Name: ${resume.firstName || "Not set"} ${resume.lastName || "Not set"}
-Email: ${resume.email || "Not set"}
-Professional Summary: ${resume.professionalSummary || "Not written yet"}
-Work Experience: ${resume.workExperience ? JSON.stringify(resume.workExperience) : "Not added yet"}
-Education: ${resume.education ? JSON.stringify(resume.education) : "Not added yet"}
-Skills: ${resume.skills ? JSON.stringify(resume.skills) : "Not added yet"}
-
-In your first message, acknowledge their target role (${resume.targetRole}) and give specific advice based on what they have or haven't filled in yet.`
-      : "You are a helpful resume assistant.";
-
     const result = streamText({
       model: openai("gpt-4.1"),
       messages: modelMessages,
-      system: systemPrompt,
+      system: getResumeAssistantPrompt(resume),
     });
 
     return result.toUIMessageStreamResponse();
