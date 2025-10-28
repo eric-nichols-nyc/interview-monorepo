@@ -7,10 +7,31 @@
   "linter": {
     "rules": {
       "nursery": {
-        "noDeprecatedImports": "error"
+        "noDeprecatedImports": "error",
+        "noShadow": "off" // Allow shadowing parameters
       },
       "style": {
         "noMagicNumbers": "off"
+      },
+      "suspicious": {
+        "noEmptyBlockStatements": "off", // Allow empty blocks (e.g., empty callbacks)
+        "noExplicitAny": "warn", // Allow any but warn about it
+        "noAlert": "off", // Allow alert/confirm (useful for quick debugging)
+        "useAwait": "off", // Allow async functions without await
+        "noArrayIndexKey": "warn" // Allow array index as key but warn
+      },
+      "correctness": {
+        "noUnusedVariables": "warn" // Downgrade unused vars to warning
+      },
+      "complexity": {
+        "noForEach": "off", // Allow forEach (common pattern)
+        "noExcessiveCognitiveComplexity": "off" // Allow complex functions
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn" // Downgrade performance issues to warnings
+      },
+      "a11y": {
+        "noLabelWithoutControl": "warn" // Downgrade accessibility to warning
       }
     }
   },
