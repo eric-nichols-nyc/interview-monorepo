@@ -5,7 +5,7 @@ const PROTOCOL_REGEX = /^https?:\/\//;
 
 // Simple utility function to test
 function stripProtocol(url: string): string {
-	return url.replace(PROTOCOL_REGEX, "");
+  return url.replace(PROTOCOL_REGEX, "");
 }
 
 describe("String Helpers", () => {

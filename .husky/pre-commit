@@ -1,2 +1,5 @@
-npx biome check --write --staged
+# Run biome on staged files only
+npx biome check --write --staged --no-errors-on-unmatched
+
+# Run tests for resume app
 cd apps/resume && pnpm test
