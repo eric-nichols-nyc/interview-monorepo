@@ -1,36 +1,44 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@repo/design-system/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/design-system/components/ui/card';
-import { Input } from '@repo/design-system/components/ui/input';
-import { Label } from '@repo/design-system/components/ui/label';
-import { Textarea } from '@repo/design-system/components/ui/textarea';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@repo/design-system/components/ui/collapsible';
-import { Badge } from '@repo/design-system/components/ui/badge';
-import { Checkbox } from '@repo/design-system/components/ui/checkbox';
-import { 
-  Plus, 
-  Trash2, 
-  ChevronDown, 
-  ChevronUp, 
-  GraduationCap,
-  Calendar,
-  MapPin,
+import { Badge } from "@repo/design-system/components/ui/badge";
+import { Button } from "@repo/design-system/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/design-system/components/ui/card";
+import { Checkbox } from "@repo/design-system/components/ui/checkbox";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@repo/design-system/components/ui/collapsible";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Label } from "@repo/design-system/components/ui/label";
+import {
   Award,
-  BookOpen,
-  X
-} from 'lucide-react';
-import { useProfileStore } from '../../../../stores/profile-store';
-import { Education } from '../../../../types/profile';
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  GraduationCap,
+  MapPin,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { useProfileStore } from "../../../../stores/profile-store";
+import type { Education } from "../../../../types/profile";
 
 export function EducationForm() {
-  const { 
-    profile, 
-    addEducation, 
+  const {
+    profile,
+    addEducation,
     updateEducationItem,
     removeEducation,
-    errors 
+    errors,
   } = useProfileStore();
 
   const [openItems, setOpenItems] = useState<Set<number>>(new Set([0])); // First item open by default
@@ -45,33 +53,35 @@ export function EducationForm() {
     setOpenItems(newOpenItems);
   };
 
-  const getFieldError = (field: string): string | undefined => {
-    return errors[field]?.[0];
-  };
+  const getFieldError = (field: string): string | undefined =>
+    errors[field]?.[0];
 
   const handleAddEducation = () => {
     const newEducation: Education = {
       id: crypto.randomUUID(),
-      institution: '',
-      degree: '',
-      fieldOfStudy: '',
-      location: '',
-      startDate: '',
-      endDate: '',
+      institution: "",
+      degree: "",
+      fieldOfStudy: "",
+      location: "",
+      startDate: "",
+      endDate: "",
       isCurrent: false,
-      gpa: '',
+      gpa: "",
       honors: [],
       coursework: [],
     };
-    
+
     addEducation(newEducation);
-    
+
     // Open the newly added item
     const newIndex = profile.education.length;
-    setOpenItems(prev => new Set(Array.from(prev).concat([newIndex])));
+    setOpenItems((prev) => new Set(Array.from(prev).concat([newIndex])));
   };
 
-  const handleUpdateEducation = (index: number, updates: Partial<Education>) => {
+  const handleUpdateEducation = (
+    index: number,
+    updates: Partial<Education>
+  ) => {
     updateEducationItem(index, updates);
   };
 
@@ -85,11 +95,15 @@ export function EducationForm() {
 
   const handleAddHonor = (educationIndex: number) => {
     const education = profile.education[educationIndex];
-    const updatedHonors = [...(education.honors || []), ''];
+    const updatedHonors = [...(education.honors || []), ""];
     handleUpdateEducation(educationIndex, { honors: updatedHonors });
   };
 
-  const handleUpdateHonor = (educationIndex: number, honorIndex: number, value: string) => {
+  const handleUpdateHonor = (
+    educationIndex: number,
+    honorIndex: number,
+    value: string
+  ) => {
     const education = profile.education[educationIndex];
     const updatedHonors = [...(education.honors || [])];
     updatedHonors[honorIndex] = value;
@@ -98,52 +112,73 @@ export function EducationForm() {
 
   const handleRemoveHonor = (educationIndex: number, honorIndex: number) => {
     const education = profile.education[educationIndex];
-    const updatedHonors = (education.honors || []).filter((_, i) => i !== honorIndex);
+    const updatedHonors = (education.honors || []).filter(
+      (_, i) => i !== honorIndex
+    );
     handleUpdateEducation(educationIndex, { honors: updatedHonors });
   };
 
   const handleAddCoursework = (educationIndex: number, coursework: string) => {
-    if (!coursework.trim()) return;
-    
+    if (!coursework.trim()) {
+      return;
+    }
+
     const education = profile.education[educationIndex];
-    const updatedCoursework = [...(education.coursework || []), coursework.trim()];
+    const updatedCoursework = [
+      ...(education.coursework || []),
+      coursework.trim(),
+    ];
     handleUpdateEducation(educationIndex, { coursework: updatedCoursework });
   };
 
-  const handleRemoveCoursework = (educationIndex: number, courseworkIndex: number) => {
+  const handleRemoveCoursework = (
+    educationIndex: number,
+    courseworkIndex: number
+  ) => {
     const education = profile.education[educationIndex];
-    const updatedCoursework = (education.coursework || []).filter((_, i) => i !== courseworkIndex);
+    const updatedCoursework = (education.coursework || []).filter(
+      (_, i) => i !== courseworkIndex
+    );
     handleUpdateEducation(educationIndex, { coursework: updatedCoursework });
   };
 
-  const handleCourseworkKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, educationIndex: number) => {
-    if (e.key === 'Enter') {
+  const handleCourseworkKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    educationIndex: number
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       const input = e.target as HTMLInputElement;
       handleAddCoursework(educationIndex, input.value);
-      input.value = '';
+      input.value = "";
     }
   };
 
-  const handleBulkCourseworkUpdate = (educationIndex: number, courseworkText: string) => {
+  const handleBulkCourseworkUpdate = (
+    educationIndex: number,
+    courseworkText: string
+  ) => {
     // Parse comma-separated coursework
     const coursework = courseworkText
-      .split(',')
-      .map(course => course.trim())
-      .filter(course => course.length > 0);
-    
+      .split(",")
+      .map((course) => course.trim())
+      .filter((course) => course.length > 0);
+
     handleUpdateEducation(educationIndex, { coursework });
   };
 
   const getBulkCourseworkText = (educationIndex: number): string => {
     const education = profile.education[educationIndex];
-    return (education.coursework || []).join(', ');
+    return (education.coursework || []).join(", ");
   };
 
-  const handleCurrentEducationToggle = (educationIndex: number, checked: boolean) => {
+  const handleCurrentEducationToggle = (
+    educationIndex: number,
+    checked: boolean
+  ) => {
     const updates: Partial<Education> = { isCurrent: checked };
     if (checked) {
-      updates.endDate = ''; // Clear end date if currently enrolled
+      updates.endDate = ""; // Clear end date if currently enrolled
     }
     handleUpdateEducation(educationIndex, updates);
   };
@@ -154,41 +189,53 @@ export function EducationForm() {
       {profile.education.length > 0 && (
         <div className="space-y-4">
           {profile.education.map((education, index) => (
-            <Card key={education.id || index} className="border-l-4 border-l-blue-500">
-              <Collapsible open={openItems.has(index)} onOpenChange={() => toggleItem(index)}>
+            <Card
+              className="border-l-4 border-l-blue-500"
+              key={education.id || index}
+            >
+              <Collapsible
+                onOpenChange={() => toggleItem(index)}
+                open={openItems.has(index)}
+              >
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+                  <CardHeader className="cursor-pointer transition-colors hover:bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3 text-left">
                         <GraduationCap className="h-5 w-5 text-gray-500" />
                         <div>
                           <CardTitle className="text-lg">
-                            {education.institution || 'New Education'}
+                            {education.institution || "New Education"}
                           </CardTitle>
-                          <CardDescription className="flex items-center space-x-4 mt-1">
+                          <CardDescription className="mt-1 flex items-center space-x-4">
                             {education.degree && (
                               <span className="text-sm">
                                 {education.degree}
-                                {education.fieldOfStudy && ` in ${education.fieldOfStudy}`}
+                                {education.fieldOfStudy &&
+                                  ` in ${education.fieldOfStudy}`}
                               </span>
                             )}
                             {education.location && (
                               <span className="flex items-center text-xs">
-                                <MapPin className="h-3 w-3 mr-1" />
+                                <MapPin className="mr-1 h-3 w-3" />
                                 {education.location}
                               </span>
                             )}
                             {(education.startDate || education.endDate) && (
                               <span className="flex items-center text-xs">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {education.startDate} 
-                                {education.startDate && !education.isCurrent && education.endDate && ' - '}
-                                {education.isCurrent ? ' - Present' : education.endDate}
+                                <Calendar className="mr-1 h-3 w-3" />
+                                {education.startDate}
+                                {education.startDate &&
+                                  !education.isCurrent &&
+                                  education.endDate &&
+                                  " - "}
+                                {education.isCurrent
+                                  ? " - Present"
+                                  : education.endDate}
                               </span>
                             )}
                             {education.gpa && (
                               <span className="flex items-center text-xs">
-                                <Award className="h-3 w-3 mr-1" />
+                                <Award className="mr-1 h-3 w-3" />
                                 GPA: {education.gpa}
                               </span>
                             )}
@@ -197,13 +244,13 @@ export function EducationForm() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleRemoveEducation(index);
                           }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          size="sm"
+                          variant="ghost"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -220,108 +267,182 @@ export function EducationForm() {
                 <CollapsibleContent>
                   <CardContent className="space-y-6 pt-0">
                     {/* Basic Education Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor={`institution-${index}`}>Institution *</Label>
+                        <Label htmlFor={`institution-${index}`}>
+                          Institution *
+                        </Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.institution`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`institution-${index}`}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              institution: e.target.value,
+                            })
+                          }
+                          placeholder="Enter institution name"
                           type="text"
                           value={education.institution}
-                          onChange={(e) => handleUpdateEducation(index, { institution: e.target.value })}
-                          placeholder="Enter institution name"
-                          className={getFieldError(`education.${index}.institution`) ? 'border-red-500' : ''}
                         />
                         {getFieldError(`education.${index}.institution`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.institution`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.institution`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`degree-${index}`}>Degree *</Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.degree`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`degree-${index}`}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              degree: e.target.value,
+                            })
+                          }
+                          placeholder="e.g., Bachelor of Science"
                           type="text"
                           value={education.degree}
-                          onChange={(e) => handleUpdateEducation(index, { degree: e.target.value })}
-                          placeholder="e.g., Bachelor of Science"
-                          className={getFieldError(`education.${index}.degree`) ? 'border-red-500' : ''}
                         />
                         {getFieldError(`education.${index}.degree`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.degree`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.degree`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`fieldOfStudy-${index}`}>Field of Study</Label>
+                        <Label htmlFor={`fieldOfStudy-${index}`}>
+                          Field of Study
+                        </Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.fieldOfStudy`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`fieldOfStudy-${index}`}
-                          type="text"
-                          value={education.fieldOfStudy || ''}
-                          onChange={(e) => handleUpdateEducation(index, { fieldOfStudy: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              fieldOfStudy: e.target.value,
+                            })
+                          }
                           placeholder="e.g., Computer Science"
-                          className={getFieldError(`education.${index}.fieldOfStudy`) ? 'border-red-500' : ''}
+                          type="text"
+                          value={education.fieldOfStudy || ""}
                         />
                         {getFieldError(`education.${index}.fieldOfStudy`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.fieldOfStudy`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.fieldOfStudy`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`location-${index}`}>Location</Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.location`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`location-${index}`}
-                          type="text"
-                          value={education.location || ''}
-                          onChange={(e) => handleUpdateEducation(index, { location: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              location: e.target.value,
+                            })
+                          }
                           placeholder="e.g., Boston, MA"
-                          className={getFieldError(`education.${index}.location`) ? 'border-red-500' : ''}
+                          type="text"
+                          value={education.location || ""}
                         />
                         {getFieldError(`education.${index}.location`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.location`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.location`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`gpa-${index}`}>GPA</Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.gpa`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`gpa-${index}`}
-                          type="text"
-                          value={education.gpa || ''}
-                          onChange={(e) => handleUpdateEducation(index, { gpa: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              gpa: e.target.value,
+                            })
+                          }
                           placeholder="e.g., 3.8/4.0"
-                          className={getFieldError(`education.${index}.gpa`) ? 'border-red-500' : ''}
+                          type="text"
+                          value={education.gpa || ""}
                         />
                         {getFieldError(`education.${index}.gpa`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.gpa`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.gpa`)}
+                          </p>
                         )}
                       </div>
                     </div>
 
                     {/* Date Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor={`startDate-${index}`}>Start Date *</Label>
+                        <Label htmlFor={`startDate-${index}`}>
+                          Start Date *
+                        </Label>
                         <Input
+                          className={
+                            getFieldError(`education.${index}.startDate`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`startDate-${index}`}
+                          onChange={(e) =>
+                            handleUpdateEducation(index, {
+                              startDate: e.target.value,
+                            })
+                          }
+                          placeholder="e.g., Aug 2020"
                           type="text"
                           value={education.startDate}
-                          onChange={(e) => handleUpdateEducation(index, { startDate: e.target.value })}
-                          placeholder="e.g., Aug 2020"
-                          className={getFieldError(`education.${index}.startDate`) ? 'border-red-500' : ''}
                         />
                         {getFieldError(`education.${index}.startDate`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`education.${index}.startDate`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`education.${index}.startDate`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex items-center space-x-2 mb-2">
+                        <div className="mb-2 flex items-center space-x-2">
                           <Checkbox
-                            id={`isCurrent-${index}`}
                             checked={education.isCurrent}
-                            onCheckedChange={(checked) => handleCurrentEducationToggle(index, checked as boolean)}
+                            id={`isCurrent-${index}`}
+                            onCheckedChange={(checked) =>
+                              handleCurrentEducationToggle(
+                                index,
+                                checked as boolean
+                              )
+                            }
                           />
-                          <Label htmlFor={`isCurrent-${index}`} className="text-sm font-normal">
+                          <Label
+                            className="font-normal text-sm"
+                            htmlFor={`isCurrent-${index}`}
+                          >
                             Currently enrolled
                           </Label>
                         </div>
@@ -329,15 +450,25 @@ export function EducationForm() {
                           <>
                             <Label htmlFor={`endDate-${index}`}>End Date</Label>
                             <Input
+                              className={
+                                getFieldError(`education.${index}.endDate`)
+                                  ? "border-red-500"
+                                  : ""
+                              }
                               id={`endDate-${index}`}
-                              type="text"
-                              value={education.endDate || ''}
-                              onChange={(e) => handleUpdateEducation(index, { endDate: e.target.value })}
+                              onChange={(e) =>
+                                handleUpdateEducation(index, {
+                                  endDate: e.target.value,
+                                })
+                              }
                               placeholder="e.g., May 2024"
-                              className={getFieldError(`education.${index}.endDate`) ? 'border-red-500' : ''}
+                              type="text"
+                              value={education.endDate || ""}
                             />
                             {getFieldError(`education.${index}.endDate`) && (
-                              <p className="text-sm text-red-600">{getFieldError(`education.${index}.endDate`)}</p>
+                              <p className="text-red-600 text-sm">
+                                {getFieldError(`education.${index}.endDate`)}
+                              </p>
                             )}
                           </>
                         )}
@@ -347,37 +478,46 @@ export function EducationForm() {
                     {/* Relevant Coursework - Two Input Methods */}
                     <div className="space-y-4">
                       <Label>Relevant Coursework</Label>
-                      
+
                       {/* Method 1: Bulk Comma-Separated Input */}
                       <div className="space-y-2">
-                        <Label htmlFor={`bulk-coursework-${index}`} className="text-sm font-normal">
+                        <Label
+                          className="font-normal text-sm"
+                          htmlFor={`bulk-coursework-${index}`}
+                        >
                           Comma-separated list:
                         </Label>
                         <Input
+                          className="font-mono text-sm"
                           id={`bulk-coursework-${index}`}
+                          onChange={(e) =>
+                            handleBulkCourseworkUpdate(index, e.target.value)
+                          }
+                          placeholder="e.g., Data Structures, Algorithms, Database Systems, Software Engineering"
                           type="text"
                           value={getBulkCourseworkText(index)}
-                          onChange={(e) => handleBulkCourseworkUpdate(index, e.target.value)}
-                          placeholder="e.g., Data Structures, Algorithms, Database Systems, Software Engineering"
-                          className="font-mono text-sm"
                         />
-                        <p className="text-xs text-gray-500">
-                          Type courses separated by commas. Changes save automatically.
+                        <p className="text-gray-500 text-xs">
+                          Type courses separated by commas. Changes save
+                          automatically.
                         </p>
                       </div>
 
                       {/* Method 2: Individual Course Input */}
                       <div className="space-y-2">
-                        <Label htmlFor={`single-coursework-${index}`} className="text-sm font-normal">
+                        <Label
+                          className="font-normal text-sm"
+                          htmlFor={`single-coursework-${index}`}
+                        >
                           Or add courses one by one:
                         </Label>
                         <Input
                           id={`single-coursework-${index}`}
-                          type="text"
-                          placeholder="Type a course name and press Enter"
                           onKeyPress={(e) => handleCourseworkKeyPress(e, index)}
+                          placeholder="Type a course name and press Enter"
+                          type="text"
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className="text-gray-500 text-xs">
                           Press Enter to add each course individually.
                         </p>
                       </div>
@@ -385,21 +525,30 @@ export function EducationForm() {
                       {/* Current Coursework Display */}
                       {(education.coursework || []).length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-sm font-normal">Current coursework:</Label>
-                          <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-md border">
-                            {(education.coursework || []).map((course, courseworkIndex) => (
-                              <Badge
-                                key={courseworkIndex}
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-red-100 transition-colors"
-                                onClick={() => handleRemoveCoursework(index, courseworkIndex)}
-                              >
-                                {course}
-                                <X className="h-3 w-3 ml-1" />
-                              </Badge>
-                            ))}
+                          <Label className="font-normal text-sm">
+                            Current coursework:
+                          </Label>
+                          <div className="flex flex-wrap gap-2 rounded-md border bg-gray-50 p-3">
+                            {(education.coursework || []).map(
+                              (course, courseworkIndex) => (
+                                <Badge
+                                  className="cursor-pointer transition-colors hover:bg-red-100"
+                                  key={courseworkIndex}
+                                  onClick={() =>
+                                    handleRemoveCoursework(
+                                      index,
+                                      courseworkIndex
+                                    )
+                                  }
+                                  variant="secondary"
+                                >
+                                  {course}
+                                  <X className="ml-1 h-3 w-3" />
+                                </Badge>
+                              )
+                            )}
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-gray-500 text-xs">
                             Click on any course badge to remove it.
                           </p>
                         </div>
@@ -411,34 +560,45 @@ export function EducationForm() {
                       <div className="flex items-center justify-between">
                         <Label>Honors & Awards</Label>
                         <Button
+                          onClick={() => handleAddHonor(index)}
+                          size="sm"
                           type="button"
                           variant="outline"
-                          size="sm"
-                          onClick={() => handleAddHonor(index)}
                         >
-                          <Plus className="h-4 w-4 mr-1" />
+                          <Plus className="mr-1 h-4 w-4" />
                           Add Honor/Award
                         </Button>
                       </div>
-                      
+
                       {(education.honors || []).length > 0 && (
                         <div className="space-y-2">
                           {(education.honors || []).map((honor, honorIndex) => (
-                            <div key={honorIndex} className="flex items-center space-x-2">
+                            <div
+                              className="flex items-center space-x-2"
+                              key={honorIndex}
+                            >
                               <span className="text-gray-400">•</span>
                               <div className="flex-1">
                                 <Input
-                                  value={honor}
-                                  onChange={(e) => handleUpdateHonor(index, honorIndex, e.target.value)}
+                                  onChange={(e) =>
+                                    handleUpdateHonor(
+                                      index,
+                                      honorIndex,
+                                      e.target.value
+                                    )
+                                  }
                                   placeholder="e.g., Dean's List, Magna Cum Laude, Academic Scholarship"
+                                  value={honor}
                                 />
                               </div>
                               <Button
+                                className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                                onClick={() =>
+                                  handleRemoveHonor(index, honorIndex)
+                                }
+                                size="sm"
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveHonor(index, honorIndex)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -448,8 +608,9 @@ export function EducationForm() {
                       )}
 
                       {(education.honors || []).length === 0 && (
-                        <p className="text-sm text-gray-500">
-                          Add any honors, awards, scholarships, or academic achievements you received.
+                        <p className="text-gray-500 text-sm">
+                          Add any honors, awards, scholarships, or academic
+                          achievements you received.
                         </p>
                       )}
                     </div>
@@ -465,11 +626,11 @@ export function EducationForm() {
       {profile.education.length > 0 && (
         <div className="flex justify-center pt-6">
           <Button
+            className="w-full max-w-md"
             onClick={handleAddEducation}
             size="lg"
-            className="w-full max-w-md"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="mr-2 h-5 w-5" />
             Add Education
           </Button>
         </div>
@@ -477,15 +638,18 @@ export function EducationForm() {
 
       {/* Empty State - Only show when no education */}
       {profile.education.length === 0 && (
-        <Card className="text-center py-12">
+        <Card className="py-12 text-center">
           <CardContent>
-            <GraduationCap className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No education added</h3>
-            <p className="text-gray-600 mb-6">
-              Add your educational background including degrees, certifications, and relevant coursework.
+            <GraduationCap className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 font-semibold text-gray-900 text-lg">
+              No education added
+            </h3>
+            <p className="mb-6 text-gray-600">
+              Add your educational background including degrees, certifications,
+              and relevant coursework.
             </p>
             <Button onClick={handleAddEducation} size="lg">
-              <Plus className="h-5 w-5 mr-2" />
+              <Plus className="mr-2 h-5 w-5" />
               Add Your First Education
             </Button>
           </CardContent>

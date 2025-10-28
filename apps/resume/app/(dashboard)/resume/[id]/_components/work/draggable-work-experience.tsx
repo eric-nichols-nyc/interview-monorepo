@@ -1,15 +1,15 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@repo/design-system/components/ui/button";
-import { Input } from "@repo/design-system/components/ui/input";
-import { Label } from "@repo/design-system/components/ui/label";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@repo/design-system/components/ui/collapsible";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Label } from "@repo/design-system/components/ui/label";
 import { ChevronDown, GripVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { WorkExperience } from "../../../../../../types/profile";
@@ -33,7 +33,7 @@ export function DraggableWorkExperience({
   isOnlyItem,
 }: DraggableWorkExperienceProps) {
   const [isOpen, setIsOpen] = useState(index === 0); // First item open by default
-  
+
   const {
     attributes,
     listeners,
@@ -50,39 +50,39 @@ export function DraggableWorkExperience({
 
   // Display text for the header
   const headerText = workExperience.position || "New Position";
-  const subHeaderText = workExperience.company ? `at ${workExperience.company}` : "Add company";
+  const subHeaderText = workExperience.company
+    ? `at ${workExperience.company}`
+    : "Add company";
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`border border-border rounded-lg bg-card/50 ${
+      className={`rounded-lg border border-border bg-card/50 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
+      ref={setNodeRef}
+      style={style}
     >
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible onOpenChange={setIsOpen} open={isOpen}>
         {/* Collapsible Header */}
         <CollapsibleTrigger asChild>
-          <div className="group flex items-center justify-between w-full p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-            <div className="flex items-center gap-3 flex-1">
+          <div className="group flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-muted/50">
+            <div className="flex flex-1 items-center gap-3">
               {/* Drag Handle */}
               <button
                 {...attributes}
                 {...listeners}
-                className="cursor-grab text-muted-foreground hover:text-foreground transition-colors active:cursor-grabbing"
+                aria-label="Drag to reorder"
+                className="cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing"
                 onClick={(e) => e.stopPropagation()}
                 type="button"
-                aria-label="Drag to reorder"
               >
                 <GripVertical className="h-4 w-4" />
               </button>
-              
+
               {/* Content Preview */}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm truncate">
-                  {headerText}
-                </div>
-                <div className="text-muted-foreground text-xs truncate">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium text-sm">{headerText}</div>
+                <div className="truncate text-muted-foreground text-xs">
                   {subHeaderText}
                   {workExperience.date && (
                     <span className="ml-2">• {workExperience.date}</span>
@@ -95,21 +95,21 @@ export function DraggableWorkExperience({
               {/* Delete Button */}
               {!isOnlyItem && (
                 <Button
-                  className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive"
+                  className="h-8 w-8 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(index);
                   }}
                   size="icon"
-                  variant="ghost"
                   title="Delete work experience"
+                  variant="ghost"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {/* Expand/Collapse Icon */}
-              <ChevronDown 
+              <ChevronDown
                 className={`h-4 w-4 text-muted-foreground transition-transform ${
                   isOpen ? "rotate-180" : ""
                 }`}
@@ -120,7 +120,7 @@ export function DraggableWorkExperience({
 
         {/* Collapsible Content */}
         <CollapsibleContent>
-          <div className="px-4 pb-4 space-y-6 border-t border-border/50">
+          <div className="space-y-6 border-border/50 border-t px-4 pb-4">
             {/* Position Field */}
             <div className="space-y-2 pt-4">
               <Label

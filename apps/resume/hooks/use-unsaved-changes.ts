@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 /**
  * Hook to warn users about unsaved changes when they try to navigate away
- * 
+ *
  * @param hasUnsavedChanges - Boolean indicating if there are unsaved changes
  * @param options - Optional configuration
  */
@@ -17,16 +17,18 @@ export function useUnsavedChanges(
   } = {}
 ) {
   const router = useRouter();
-  const { 
+  const {
     message = "You have unsaved changes. Are you sure you want to leave?",
-    enabled = true 
+    enabled = true,
   } = options;
 
   // Track if we're in the middle of a programmatic navigation
   const isNavigatingRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     // Handle browser refresh, close tab, etc.
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -38,14 +40,14 @@ export function useUnsavedChanges(
     };
 
     // Handle browser back/forward buttons
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = (_e: PopStateEvent) => {
       if (hasUnsavedChanges && !isNavigatingRef.current) {
         const confirmed = window.confirm(message);
-        if (!confirmed) {
+        if (confirmed) {
+          isNavigatingRef.current = true;
+        } else {
           // Push the current state back to prevent navigation
           window.history.pushState(null, "", window.location.href);
-        } else {
-          isNavigatingRef.current = true;
         }
       }
     };
@@ -62,7 +64,9 @@ export function useUnsavedChanges(
 
   // Override router methods to show confirmation
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     const originalPush = router.push;
     const originalReplace = router.replace;
@@ -126,6 +130,6 @@ export function useUnsavedChanges(
   };
 
   return {
-    navigateWithoutWarning
+    navigateWithoutWarning,
   };
 }

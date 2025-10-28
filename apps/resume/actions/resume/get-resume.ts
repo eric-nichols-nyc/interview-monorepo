@@ -15,7 +15,9 @@ async function getCurrentUserId(): Promise<string> {
 /**
  * Get a single resume by ID
  */
-export async function getResumeAction(id: string): Promise<ActionResult<Resume | null>> {
+export async function getResumeAction(
+  id: string
+): Promise<ActionResult<Resume | null>> {
   try {
     const userId = await getCurrentUserId();
 

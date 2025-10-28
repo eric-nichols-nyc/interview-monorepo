@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfileAction } from "../../actions/profile/get-profile";
 import { updateProfileAction } from "../../actions/profile/update-profile";
-import type { ActionResult } from "../../types/resume";
 import type { Profile, ProfileFormData } from "../../types/profile";
+import type { ActionResult } from "../../types/resume";
 
 // Query Keys - centralized for consistency
 export const profileKeys = {
@@ -55,7 +55,9 @@ export function useUpdateProfile() {
       queryClient.setQueryData(
         profileKeys.current(),
         (old: ActionResult<Profile | null> | undefined) => {
-          if (!old?.success) return old;
+          if (!old?.success) {
+            return old;
+          }
 
           return {
             ...old,
@@ -75,7 +77,7 @@ export function useUpdateProfile() {
     },
 
     // If the mutation fails, use the context returned from onMutate to roll back
-    onError: (err, newProfile, context) => {
+    onError: (_err, _newProfile, context) => {
       if (context?.previousProfile) {
         queryClient.setQueryData(
           profileKeys.current(),

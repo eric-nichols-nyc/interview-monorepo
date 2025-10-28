@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
-import { Textarea } from "@repo/design-system/components/ui/textarea";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@repo/design-system/components/ui/button";
+import { Textarea } from "@repo/design-system/components/ui/textarea";
 import { GripVertical, Sparkles, Trash2 } from "lucide-react";
 
 type DraggableBulletPointProps = {
@@ -37,11 +37,11 @@ export function DraggableBulletPoint({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`group flex items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
+      ref={setNodeRef}
+      style={style}
     >
       <button
         {...attributes}

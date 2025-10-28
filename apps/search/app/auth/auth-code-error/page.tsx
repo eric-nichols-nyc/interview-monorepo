@@ -2,17 +2,19 @@ import Link from "next/link";
 
 export default function AuthCodeErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-6 text-center">
         <div>
-          <h1 className="text-3xl font-bold text-red-600">Authentication Error</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="font-bold text-3xl text-red-600">
+            Authentication Error
+          </h1>
+          <p className="mt-2 text-muted-foreground">
             Sorry, we couldn't verify your email. This could be because:
           </p>
         </div>
 
-        <div className="bg-card p-6 rounded-lg border shadow-sm text-left">
-          <ul className="space-y-2 text-sm text-muted-foreground">
+        <div className="rounded-lg border bg-card p-6 text-left shadow-sm">
+          <ul className="space-y-2 text-muted-foreground text-sm">
             <li>• The verification link has expired</li>
             <li>• The link has already been used</li>
             <li>• There was an issue with the verification process</li>
@@ -20,20 +22,21 @@ export default function AuthCodeErrorPage() {
         </div>
 
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Please try signing up again or contact support if the problem persists.
+          <p className="text-muted-foreground text-sm">
+            Please try signing up again or contact support if the problem
+            persists.
           </p>
-          
-          <div className="flex gap-4 justify-center">
+
+          <div className="flex justify-center gap-4">
             <Link
+              className="rounded-md bg-primary px-4 py-2 text-primary-foreground transition-opacity hover:opacity-90"
               href="/auth/sign-up"
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity"
             >
               Try Again
             </Link>
             <Link
+              className="rounded-md border border-border px-4 py-2 transition-colors hover:bg-muted"
               href="/auth/sign-in"
-              className="border border-border px-4 py-2 rounded-md hover:bg-muted transition-colors"
             >
               Sign In Instead
             </Link>

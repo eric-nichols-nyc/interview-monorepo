@@ -1,25 +1,25 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
+import { Button } from "@repo/design-system/components/ui/button";
 import { Plus, RefreshCw, Upload } from "lucide-react";
 import { useProfile } from "../../../../../../hooks/queries/profile-queries";
 import {
@@ -51,8 +51,12 @@ export function WorkContent() {
     if (over && active.id !== over.id) {
       const oldIndex = workExperienceIds.indexOf(active.id as string);
       const newIndex = workExperienceIds.indexOf(over.id as string);
-      
-      const reorderedExperiences = arrayMove(workExperiences, oldIndex, newIndex) as WorkExperience[];
+
+      const reorderedExperiences = arrayMove(
+        workExperiences,
+        oldIndex,
+        newIndex
+      ) as WorkExperience[];
       updateWorkExperience(reorderedExperiences);
     }
   };
@@ -133,10 +137,10 @@ export function WorkContent() {
 
       {/* Drag and Drop Work Experience List */}
       <DndContext
-        sensors={sensors}
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
       >
         <SortableContext
           items={workExperienceIds}
@@ -145,13 +149,13 @@ export function WorkContent() {
           <div className="space-y-4">
             {workExperiences.map((workExperience, index) => (
               <DraggableWorkExperience
-                key={workExperienceIds[index]}
                 id={workExperienceIds[index]}
-                workExperience={workExperience}
                 index={index}
-                onUpdate={updateWorkExperienceItem}
-                onDelete={deleteWorkExperience}
                 isOnlyItem={workExperiences.length === 1}
+                key={workExperienceIds[index]}
+                onDelete={deleteWorkExperience}
+                onUpdate={updateWorkExperienceItem}
+                workExperience={workExperience}
               />
             ))}
           </div>
@@ -160,7 +164,7 @@ export function WorkContent() {
 
       {/* Help Text */}
       {workExperiences.length === 0 && (
-        <div className="text-center text-muted-foreground text-sm py-8">
+        <div className="py-8 text-center text-muted-foreground text-sm">
           <p>No work experience added yet.</p>
           <p>Click "Add Work Experience" to get started.</p>
         </div>

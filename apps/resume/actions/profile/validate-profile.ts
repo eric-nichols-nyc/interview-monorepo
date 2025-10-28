@@ -17,7 +17,9 @@ export async function validateProfileAction(
       const fieldErrors: Record<string, string[]> = {};
       validationResult.error.errors.forEach((error) => {
         const path = error.path.join(".");
-        if (!fieldErrors[path]) fieldErrors[path] = [];
+        if (!fieldErrors[path]) {
+          fieldErrors[path] = [];
+        }
         fieldErrors[path].push(error.message);
       });
 
@@ -33,7 +35,6 @@ export async function validateProfileAction(
       data: true,
     };
   } catch (error) {
-    console.error("Error validating profile:", error);
     return {
       success: false,
       error:

@@ -1,30 +1,30 @@
-import { authMiddleware } from '@repo/auth/middleware'
-import { NextResponse, type NextRequest } from 'next/server'
+import { authMiddleware } from "@repo/auth/middleware";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth/')
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth/");
 
   return authMiddleware(request, {
     onUnauthenticated: (request) => {
       // If user is not authenticated and trying to access protected routes (including root)
       if (!isAuthRoute) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/auth/sign-in'
-        return NextResponse.redirect(url)
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/sign-in";
+        return NextResponse.redirect(url);
       }
-      return NextResponse.next({ request })
+      return NextResponse.next({ request });
     },
-    onAuthenticated: (request, user) => {
+    onAuthenticated: (request, _user) => {
       // If user is authenticated and trying to access auth pages, redirect to home
       if (isAuthRoute) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-        return NextResponse.redirect(url)
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
       }
       // Return null to continue with default auth middleware response
-      return null
+      return null;
     },
-  })
+  });
 }
 
 export const config = {
@@ -36,6 +36,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-}
+};

@@ -7,7 +7,9 @@ import type { ActionResult } from "../../types/resume";
 // Get current user's ID
 async function getCurrentUserId(): Promise<string> {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   return userId;
 }
 
@@ -27,7 +29,6 @@ export async function deleteProfileAction(): Promise<ActionResult<boolean>> {
       data: true,
     };
   } catch (error) {
-    console.error("Error deleting profile:", error);
     return {
       success: false,
       error:

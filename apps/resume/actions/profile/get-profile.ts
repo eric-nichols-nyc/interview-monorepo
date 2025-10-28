@@ -8,7 +8,9 @@ import type { ActionResult } from "../../types/resume";
 // Get current user's ID
 async function getCurrentUserId(): Promise<string> {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   return userId;
 }
 
@@ -30,7 +32,6 @@ export async function getProfileAction(): Promise<
       data: profile,
     };
   } catch (error) {
-    console.error("Error fetching profile:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch profile",

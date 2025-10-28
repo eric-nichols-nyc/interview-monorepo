@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createResumeAction } from "../../actions/resume/create-resume";
+import { deleteResumeAction } from "../../actions/resume/delete-resume";
 import { getResumesAction } from "../../actions/resume/get-resumes";
-import type { ActionResult, Resume } from "../../types/resume";
 import type { Profile } from "../../types/profile";
+import type { ActionResult, Resume } from "../../types/resume";
 
 export const resumeKeys = {
   all: ["resumes"] as const,
@@ -46,6 +47,22 @@ export function useCreateResume() {
 
   return useMutation({
     mutationFn: (data: CreateResumeInput) => createResumeAction(data),
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: resumeKeys.lists() });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to delete a resume
+ */
+export function useDeleteResume() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteResumeAction(id),
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: resumeKeys.lists() });

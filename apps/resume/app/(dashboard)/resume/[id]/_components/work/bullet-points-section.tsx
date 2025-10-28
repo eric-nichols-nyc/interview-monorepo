@@ -1,26 +1,26 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
-import { Textarea } from "@repo/design-system/components/ui/textarea";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
+import { Button } from "@repo/design-system/components/ui/button";
+import { Textarea } from "@repo/design-system/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { DraggableBulletPoint } from "./draggable-bullet-point";
@@ -51,7 +51,7 @@ export function BulletPointsSection({
     if (over && active.id !== over.id) {
       const oldIndex = bulletPointIds.indexOf(active.id as string);
       const newIndex = bulletPointIds.indexOf(over.id as string);
-      
+
       const reorderedBulletPoints = arrayMove(bulletPoints, oldIndex, newIndex);
       onUpdate(reorderedBulletPoints);
     }
@@ -85,10 +85,10 @@ export function BulletPointsSection({
 
       {/* Existing bullet points with drag and drop */}
       <DndContext
-        sensors={sensors}
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
       >
         <SortableContext
           items={bulletPointIds}
@@ -97,12 +97,12 @@ export function BulletPointsSection({
           <div className="space-y-3">
             {bulletPoints.map((bulletPoint, index) => (
               <DraggableBulletPoint
-                key={bulletPointIds[index]}
-                id={bulletPointIds[index]}
                 bulletPoint={bulletPoint}
+                id={bulletPointIds[index]}
                 index={index}
-                onUpdate={updateBulletPoint}
+                key={bulletPointIds[index]}
                 onDelete={deleteBulletPoint}
+                onUpdate={updateBulletPoint}
               />
             ))}
           </div>

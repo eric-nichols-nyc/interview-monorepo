@@ -1,4 +1,4 @@
-import { models, generateText } from "@repo/ai";
+import { generateText, models } from "@repo/ai";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -23,7 +23,10 @@ export async function GET(request: Request) {
         providerName = "Google Gemini 1.5 Flash";
         break;
       default:
-        return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid provider" },
+          { status: 400 }
+        );
     }
 
     const { text } = await generateText({
@@ -37,7 +40,6 @@ export async function GET(request: Request) {
       response: text,
     });
   } catch (error) {
-    console.error("AI Test Error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -54,7 +56,10 @@ export async function POST(request: Request) {
     const { prompt, provider = "openai" } = await request.json();
 
     if (!prompt) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
     }
 
     let model;
@@ -74,7 +79,10 @@ export async function POST(request: Request) {
         providerName = "Google Gemini 1.5 Flash";
         break;
       default:
-        return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid provider" },
+          { status: 400 }
+        );
     }
 
     const { text } = await generateText({
@@ -89,7 +97,6 @@ export async function POST(request: Request) {
       response: text,
     });
   } catch (error) {
-    console.error("AI Test Error:", error);
     return NextResponse.json(
       {
         success: false,

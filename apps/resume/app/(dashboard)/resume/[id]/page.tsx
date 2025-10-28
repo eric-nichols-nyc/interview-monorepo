@@ -1,6 +1,5 @@
 "use client";
 
-import { CollapsibleChat } from "../../../../components/chat/collapsible-chat";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Sheet,
@@ -14,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bug } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getResumeAction } from "../../../../actions/resume/get-resume";
+import { CollapsibleChat } from "../../../../components/chat/collapsible-chat";
 import { useUnsavedChanges } from "../../../../hooks/use-unsaved-changes";
 import {
   useHasUnsavedChanges,

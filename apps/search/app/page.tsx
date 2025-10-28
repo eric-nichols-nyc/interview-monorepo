@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
 import { useAuth } from "@repo/auth/provider";
+import { Button } from "@repo/design-system/components/ui/button";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -10,7 +10,7 @@ export default function HomePage() {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-background p-24 text-foreground">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
           <p>Loading...</p>
         </div>
       </main>
@@ -24,7 +24,7 @@ export default function HomePage() {
         <p className="text-xl opacity-70">
           Welcome to your authenticated search platform
         </p>
-        
+
         <div className="flex justify-center gap-4">
           <Button
             className="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-opacity hover:opacity-90"

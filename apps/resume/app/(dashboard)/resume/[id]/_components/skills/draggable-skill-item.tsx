@@ -1,28 +1,27 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
-import { Input } from "@repo/design-system/components/ui/input";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
+import {
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@repo/design-system/components/ui/button";
+import { Input } from "@repo/design-system/components/ui/input";
 import { GripVertical, Trash2 } from "lucide-react";
 
 type DraggableSkillItemProps = {
@@ -63,11 +62,11 @@ function SingleSkillItem({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
       className={`group flex items-center gap-2 rounded border border-border bg-background p-2 transition-colors hover:border-primary/50 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
+      ref={setNodeRef}
+      style={style}
     >
       <button
         {...attributes}
@@ -78,14 +77,14 @@ function SingleSkillItem({
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      
+
       <Input
         className="flex-1 border-none bg-transparent p-0 text-sm focus-visible:ring-0"
         onChange={(e) => onUpdate(index, e.target.value)}
         placeholder="Enter skill name..."
         value={skill}
       />
-      
+
       <Button
         className="h-6 w-6 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
         onClick={() => onDelete(index)}
@@ -126,21 +125,21 @@ export function DraggableSkillItem({
 
   return (
     <DndContext
-      sensors={sensors}
       collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      onDragEnd={handleDragEnd}
+      sensors={sensors}
     >
       <SortableContext items={skillIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
           {skills.map((skill, index) => (
             <SingleSkillItem
-              key={skillIds[index]}
               id={skillIds[index]}
-              skill={skill}
               index={index}
-              onUpdate={onUpdate}
+              key={skillIds[index]}
               onDelete={onDelete}
+              onUpdate={onUpdate}
+              skill={skill}
             />
           ))}
         </div>

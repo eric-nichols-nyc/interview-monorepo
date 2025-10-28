@@ -36,7 +36,7 @@ export async function authMiddleware(request: NextRequest) {
   // IMPORTANT: Don't remove getClaims()
   const { data } = await supabase.auth.getClaims();
 
-  const user = data?.claims;
+  const _user = data?.claims;
 
   // Optional: Add authentication logic here
   // if (!user && request.nextUrl.pathname.startsWith('/protected')) {

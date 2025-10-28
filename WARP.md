@@ -8,6 +8,40 @@ This is a **next-forge** project - a production-grade Turborepo template for Nex
 
 **Current Status**: This appears to be a customized version with only a resume app currently implemented, but retains the full package structure for future development.
 
+## Code Style & Formatting
+
+**IMPORTANT**: This project uses **Biome** for code formatting and linting (extending ultracite configuration).
+
+### Formatting Rules
+- **Always run `pnpm fix`** before committing code to auto-format
+- Use `pnpm check` to verify code quality without making changes
+- Biome handles both linting AND formatting (replaces ESLint + Prettier)
+- Configuration extends ultracite with custom rules in `biome.jsonc`
+
+### When Writing/Editing Code
+1. **Format code using Biome style**:
+   - Use double quotes for strings (unless containing double quotes)
+   - Use semicolons at end of statements
+   - Use tabs for indentation (Biome default)
+   - Follow JavaScript/TypeScript best practices
+
+2. **Before suggesting code changes**:
+   - Ensure code matches Biome formatting rules
+   - Avoid suggesting code that will fail `pnpm check`
+
+3. **After making changes**:
+   - Run `pnpm fix` to auto-format all code
+   - Run `pnpm check` to verify no linting errors remain
+
+### Excluded from Biome Linting
+The following directories are excluded (see `biome.jsonc`):
+- `packages/design-system/components/ui` (shadcn/ui components)
+- `packages/design-system/lib`
+- `packages/design-system/hooks`
+- `packages/design-system/components/ai-elements`
+- `docs/components/ui`
+- Email templates and generated types
+
 ## Common Commands
 
 ### Development

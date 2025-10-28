@@ -55,7 +55,7 @@ function getPrismaClient() {
 
 // Use a getter to ensure Prisma is only instantiated when accessed
 export const prisma = new Proxy({} as PrismaClient, {
-  get(target, prop) {
+  get(_target, prop) {
     const client = getPrismaClient();
     const value = (client as any)[prop];
     return typeof value === "function" ? value.bind(client) : value;

@@ -2,8 +2,8 @@
 
 import { auth } from "@repo/auth/server";
 import { prisma } from "@repo/database";
-import type { ActionResult, Resume } from "../../types/resume";
 import type { Profile } from "../../types/profile";
+import type { ActionResult, Resume } from "../../types/resume";
 
 async function getCurrentUserId(): Promise<string> {
   const { userId } = await auth();

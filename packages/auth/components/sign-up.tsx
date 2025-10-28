@@ -9,7 +9,11 @@ type SignUpProps = {
   onError?: (error: string) => void;
 };
 
-export const SignUp = ({ redirectTo = "/", onSuccess, onError }: SignUpProps) => {
+export const SignUp = ({
+  redirectTo = "/",
+  onSuccess,
+  onError,
+}: SignUpProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,59 +49,59 @@ export const SignUp = ({ redirectTo = "/", onSuccess, onError }: SignUpProps) =>
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+        <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-600">
           {error}
         </div>
       )}
-      
+
       {message && (
-        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded">
+        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-600">
           {message}
         </div>
       )}
-      
+
       <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-2">
+        <label className="mb-2 block font-medium text-sm" htmlFor="email">
           Email
         </label>
         <input
+          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={loading}
           id="email"
           name="email"
-          type="email"
-          required
-          value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={loading}
+          required
+          type="email"
+          value={email}
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium mb-2">
+        <label className="mb-2 block font-medium text-sm" htmlFor="password">
           Password
         </label>
         <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={loading}
+          id="password"
+          minLength={6}
+          name="password"
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          type="password"
+          value={password}
         />
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="mt-1 text-gray-500 text-sm">
           Password must be at least 6 characters long
         </p>
       </div>
 
       <button
-        type="submit"
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        type="submit"
       >
         {loading ? "Creating account..." : "Sign Up"}
       </button>

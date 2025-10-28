@@ -14,15 +14,14 @@ import {
   GraduationCap,
   Layout,
   User,
-  FileText,
 } from "lucide-react";
+import { useResumeSectionOrder } from "../../../../../stores/resume-editor-store";
 import { BasicInfoContent } from "./basic-info-content";
 import { EducationContent } from "./education-content";
 import { LayoutContent } from "./layout-content";
 import { ProjectsContent } from "./projects-content";
 import { SkillsContent } from "./skills/skills-content";
 import { WorkContent } from "./work/work-content";
-import { useResumeSectionOrder } from "../../../../../stores/resume-editor-store";
 
 // Create a placeholder component for certifications
 function CertificationsContent() {
@@ -59,7 +58,7 @@ export function InfoAccordion() {
     projects: {
       value: "projects",
       icon: FolderOpen,
-      title: "Projects", 
+      title: "Projects",
       component: ProjectsContent,
     },
     education: {
@@ -108,10 +107,13 @@ export function InfoAccordion() {
 
         {/* Dynamic sections based on section order */}
         {sectionOrder
-          .filter((section: string) => section !== 'professional_summary') // Exclude basic info since it's always first
+          .filter((section: string) => section !== "professional_summary") // Exclude basic info since it's always first
           .map((sectionName: string) => {
-            const config = sectionConfigs[sectionName as keyof typeof sectionConfigs];
-            if (!config) return null;
+            const config =
+              sectionConfigs[sectionName as keyof typeof sectionConfigs];
+            if (!config) {
+              return null;
+            }
 
             const IconComponent = config.icon;
             const ContentComponent = config.component;

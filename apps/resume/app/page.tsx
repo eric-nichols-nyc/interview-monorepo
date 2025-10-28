@@ -2,11 +2,13 @@
 
 import { useAuth } from "@repo/auth/provider";
 import { Button } from "@repo/design-system/components/ui/button";
-import { CreateResumeDialog } from "../../components/create-resume-dialog";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CreateResumeDialog } from "../components/create-resume-dialog";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   if (loading) {
     return (
@@ -19,6 +21,31 @@ export default function HomePage() {
     );
   }
 
+  // No user - show Sign In button
+  if (!user) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-background p-24 text-black">
+        <div className="w-full max-w-5xl space-y-8 text-center">
+          <h1 className="font-bold text-4xl">Resume Platform</h1>
+          <p className="text-xl opacity-70">
+            Create and manage your professional resumes
+          </p>
+
+          <div className="flex justify-center">
+            <Button
+              className="rounded-lg bg-primary px-6 py-3 font-medium text-black transition-opacity hover:opacity-90"
+              onClick={() => router.push("/sign-in")}
+              type="button"
+            >
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // User authenticated - show Create and View Resumes buttons
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-24 text-black">
       <div className="w-full max-w-5xl space-y-8 text-center">
@@ -39,6 +66,7 @@ export default function HomePage() {
           </CreateResumeDialog>
           <Button
             className="rounded-lg border border-border px-6 py-3 font-medium transition-colors hover:bg-muted"
+            onClick={() => router.push("/dashboard")}
             type="button"
           >
             View Resumes

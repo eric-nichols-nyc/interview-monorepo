@@ -1,13 +1,13 @@
 "use client";
 
+import { useAuth } from "@repo/auth/provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { useAuth } from "@repo/auth/provider";
 
-interface NavigationProps {
+type NavigationProps = {
   className?: string;
-}
+};
 
 export function Navigation({ className }: NavigationProps) {
   const pathname = usePathname();
@@ -25,7 +25,7 @@ export function Navigation({ className }: NavigationProps) {
       active: pathname === "/" && window.location.port === "3000",
     },
     {
-      name: "Interview App", 
+      name: "Interview App",
       href: "http://localhost:3001",
       active: pathname === "/" && window.location.port === "3001",
     },
@@ -37,19 +37,21 @@ export function Navigation({ className }: NavigationProps) {
   ];
 
   return (
-    <nav className={`flex items-center justify-between p-4 border-b ${className}`}>
+    <nav
+      className={`flex items-center justify-between border-b p-4 ${className}`}
+    >
       <div className="flex items-center space-x-6">
         <div className="font-bold text-lg">Interview Platform</div>
         <div className="flex space-x-4">
           {navLinks.map((link) => (
             <Link
-              key={link.name}
-              href={link.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-2 font-medium text-sm transition-colors ${
                 link.active
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
+              href={link.href}
+              key={link.name}
             >
               {link.name}
             </Link>
@@ -59,14 +61,8 @@ export function Navigation({ className }: NavigationProps) {
 
       {user && (
         <div className="flex items-center space-x-4">
-          <span className="text-sm text-muted-foreground">
-            {user.email}
-          </span>
-          <Button
-            onClick={handleSignOut}
-            variant="outline"
-            size="sm"
-          >
+          <span className="text-muted-foreground text-sm">{user.email}</span>
+          <Button onClick={handleSignOut} size="sm" variant="outline">
             Sign Out
           </Button>
         </div>

@@ -9,7 +9,9 @@ import type { ActionResult } from "../../types/resume";
 // Get current user's ID
 async function getCurrentUserId(): Promise<string> {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   return userId;
 }
 
@@ -29,7 +31,9 @@ export async function updateProfileAction(
       const fieldErrors: Record<string, string[]> = {};
       validationResult.error.errors.forEach((error) => {
         const path = error.path.join(".");
-        if (!fieldErrors[path]) fieldErrors[path] = [];
+        if (!fieldErrors[path]) {
+          fieldErrors[path] = [];
+        }
         fieldErrors[path].push(error.message);
       });
 
@@ -73,7 +77,6 @@ export async function updateProfileAction(
       data: profile,
     };
   } catch (error) {
-    console.error("Error updating profile:", error);
     return {
       success: false,
       error:

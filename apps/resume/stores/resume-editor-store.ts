@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
-import { shallow } from "zustand/shallow";
 import { updateResumeAction } from "../actions/resume/update-resume";
 import type {
   BasicInfo,
@@ -132,16 +130,17 @@ export const useResumeEditorStore = create<ResumeEditorState>((set, get) => ({
   updateName: (name) => get().updateSection("name", name),
   updateTargetRole: (targetRole) =>
     get().updateSection("targetRole", targetRole),
-  updateSectionOrder: (order) =>
-    get().updateSection("sectionOrder", order),
+  updateSectionOrder: (order) => get().updateSection("sectionOrder", order),
   reorderSection: (fromIndex, toIndex) => {
     const state = get();
-    if (!state.resume?.sectionOrder) return;
-    
+    if (!state.resume?.sectionOrder) {
+      return;
+    }
+
     const currentOrder = [...state.resume.sectionOrder];
     const [movedSection] = currentOrder.splice(fromIndex, 1);
     currentOrder.splice(toIndex, 0, movedSection);
-    
+
     get().updateSection("sectionOrder", currentOrder);
   },
 
@@ -243,15 +242,55 @@ const selectCanSave = (state: ResumeEditorState) =>
 
 // Stable default arrays to prevent infinite loops
 const EMPTY_ARRAY: never[] = [];
-const DEFAULT_SECTION_ORDER = ["professional_summary", "work_experience", "skills", "projects", "education", "certifications"];
+const DEFAULT_SECTION_ORDER = [
+  "professional_summary",
+  "work_experience",
+  "skills",
+  "projects",
+  "education",
+  "certifications",
+];
 
 // Stable section selectors
 const selectWorkExperience = (state: ResumeEditorState) =>
   state.resume?.workExperience || EMPTY_ARRAY;
 const selectEducation = (state: ResumeEditorState) =>
   state.resume?.education || EMPTY_ARRAY;
-const selectSkills = (state: ResumeEditorState) => 
-  state.resume?.skills || EMPTY_ARRAY;
+
+// Skills selector with caching to prevent reference issues
+let cachedSkills: typeof EMPTY_ARRAY | null = null;
+let cachedSkillsResumeId: string | null = null;
+let cachedSkillsLength = 0;
+
+const selectSkills = (state: ResumeEditorState) => {
+  if (!state.resume) {
+    cachedSkills = null;
+    cachedSkillsResumeId = null;
+    cachedSkillsLength = 0;
+    return EMPTY_ARRAY;
+  }
+
+  const currentSkills = state.resume.skills || EMPTY_ARRAY;
+  const currentLength = currentSkills.length;
+
+  // If it's the same resume and skills array hasn't changed in length or content, return cached version
+  if (
+    state.resume.id === cachedSkillsResumeId &&
+    currentLength === cachedSkillsLength &&
+    cachedSkills &&
+    JSON.stringify(currentSkills) === JSON.stringify(cachedSkills)
+  ) {
+    return cachedSkills;
+  }
+
+  // Update cache
+  cachedSkills = currentSkills;
+  cachedSkillsResumeId = state.resume.id;
+  cachedSkillsLength = currentLength;
+
+  return currentSkills;
+};
+
 const selectProjects = (state: ResumeEditorState) =>
   state.resume?.projects || EMPTY_ARRAY;
 const selectCertifications = (state: ResumeEditorState) =>

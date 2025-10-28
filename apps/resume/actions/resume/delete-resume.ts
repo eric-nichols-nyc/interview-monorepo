@@ -15,7 +15,9 @@ async function getCurrentUserId(): Promise<string> {
 /**
  * Delete a resume
  */
-export async function deleteResumeAction(id: string): Promise<ActionResult<{ id: string }>> {
+export async function deleteResumeAction(
+  id: string
+): Promise<ActionResult<{ id: string }>> {
   try {
     const userId = await getCurrentUserId();
 

@@ -1,35 +1,40 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@repo/design-system/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/design-system/components/ui/card';
-import { Input } from '@repo/design-system/components/ui/input';
-import { Label } from '@repo/design-system/components/ui/label';
-import { Textarea } from '@repo/design-system/components/ui/textarea';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@repo/design-system/components/ui/collapsible';
-import { Badge } from '@repo/design-system/components/ui/badge';
-import { 
-  Plus, 
-  Trash2, 
-  ChevronDown, 
-  ChevronUp, 
-  FolderOpen, 
-  ExternalLink,
-  Github,
+import { Badge } from "@repo/design-system/components/ui/badge";
+import { Button } from "@repo/design-system/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/design-system/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@repo/design-system/components/ui/collapsible";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Label } from "@repo/design-system/components/ui/label";
+import { Textarea } from "@repo/design-system/components/ui/textarea";
+import {
   Calendar,
-  X
-} from 'lucide-react';
-import { useProfileStore } from '../../../../stores/profile-store';
-import { Project } from '../../../../types/profile';
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  FolderOpen,
+  Github,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { useProfileStore } from "../../../../stores/profile-store";
+import type { Project } from "../../../../types/profile";
 
 export function ProjectsForm() {
-  const { 
-    profile, 
-    addProject, 
-    updateProjectItem,
-    removeProject,
-    errors 
-  } = useProfileStore();
+  const { profile, addProject, updateProjectItem, removeProject, errors } =
+    useProfileStore();
 
   const [openItems, setOpenItems] = useState<Set<number>>(new Set([0])); // First item open by default
 
@@ -43,28 +48,27 @@ export function ProjectsForm() {
     setOpenItems(newOpenItems);
   };
 
-  const getFieldError = (field: string): string | undefined => {
-    return errors[field]?.[0];
-  };
+  const getFieldError = (field: string): string | undefined =>
+    errors[field]?.[0];
 
   const handleAddProject = () => {
     const newProject: Project = {
       id: crypto.randomUUID(),
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       technologies: [],
-      url: '',
-      githubUrl: '',
-      startDate: '',
-      endDate: '',
-      highlights: [''],
+      url: "",
+      githubUrl: "",
+      startDate: "",
+      endDate: "",
+      highlights: [""],
     };
-    
+
     addProject(newProject);
-    
+
     // Open the newly added item
     const newIndex = profile.projects.length;
-    setOpenItems(prev => new Set(Array.from(prev).concat([newIndex])));
+    setOpenItems((prev) => new Set(Array.from(prev).concat([newIndex])));
   };
 
   const handleUpdateProject = (index: number, updates: Partial<Project>) => {
@@ -81,26 +85,37 @@ export function ProjectsForm() {
 
   const handleAddHighlight = (projectIndex: number) => {
     const project = profile.projects[projectIndex];
-    const updatedHighlights = [...(project.highlights || []), ''];
+    const updatedHighlights = [...(project.highlights || []), ""];
     handleUpdateProject(projectIndex, { highlights: updatedHighlights });
   };
 
-  const handleUpdateHighlight = (projectIndex: number, highlightIndex: number, value: string) => {
+  const handleUpdateHighlight = (
+    projectIndex: number,
+    highlightIndex: number,
+    value: string
+  ) => {
     const project = profile.projects[projectIndex];
     const updatedHighlights = [...(project.highlights || [])];
     updatedHighlights[highlightIndex] = value;
     handleUpdateProject(projectIndex, { highlights: updatedHighlights });
   };
 
-  const handleRemoveHighlight = (projectIndex: number, highlightIndex: number) => {
+  const handleRemoveHighlight = (
+    projectIndex: number,
+    highlightIndex: number
+  ) => {
     const project = profile.projects[projectIndex];
-    const updatedHighlights = (project.highlights || []).filter((_, i) => i !== highlightIndex);
+    const updatedHighlights = (project.highlights || []).filter(
+      (_, i) => i !== highlightIndex
+    );
     handleUpdateProject(projectIndex, { highlights: updatedHighlights });
   };
 
   const handleAddTechnology = (projectIndex: number, technology: string) => {
-    if (!technology.trim()) return;
-    
+    if (!technology.trim()) {
+      return;
+    }
+
     const project = profile.projects[projectIndex];
     const updatedTechnologies = [...project.technologies, technology.trim()];
     handleUpdateProject(projectIndex, { technologies: updatedTechnologies });
@@ -108,32 +123,40 @@ export function ProjectsForm() {
 
   const handleRemoveTechnology = (projectIndex: number, techIndex: number) => {
     const project = profile.projects[projectIndex];
-    const updatedTechnologies = project.technologies.filter((_, i) => i !== techIndex);
+    const updatedTechnologies = project.technologies.filter(
+      (_, i) => i !== techIndex
+    );
     handleUpdateProject(projectIndex, { technologies: updatedTechnologies });
   };
 
-  const handleTechnologyKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, projectIndex: number) => {
-    if (e.key === 'Enter') {
+  const handleTechnologyKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    projectIndex: number
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       const input = e.target as HTMLInputElement;
       handleAddTechnology(projectIndex, input.value);
-      input.value = '';
+      input.value = "";
     }
   };
 
-  const handleBulkTechnologiesUpdate = (projectIndex: number, techText: string) => {
+  const handleBulkTechnologiesUpdate = (
+    projectIndex: number,
+    techText: string
+  ) => {
     // Parse comma-separated technologies
     const technologies = techText
-      .split(',')
-      .map(tech => tech.trim())
-      .filter(tech => tech.length > 0);
-    
+      .split(",")
+      .map((tech) => tech.trim())
+      .filter((tech) => tech.length > 0);
+
     handleUpdateProject(projectIndex, { technologies });
   };
 
   const getBulkTechnologiesText = (projectIndex: number): string => {
     const project = profile.projects[projectIndex];
-    return project.technologies.join(', ');
+    return project.technologies.join(", ");
   };
 
   return (
@@ -142,28 +165,36 @@ export function ProjectsForm() {
       {profile.projects.length > 0 && (
         <div className="space-y-4">
           {profile.projects.map((project, index) => (
-            <Card key={project.id || index} className="border-l-4 border-l-purple-500">
-              <Collapsible open={openItems.has(index)} onOpenChange={() => toggleItem(index)}>
+            <Card
+              className="border-l-4 border-l-purple-500"
+              key={project.id || index}
+            >
+              <Collapsible
+                onOpenChange={() => toggleItem(index)}
+                open={openItems.has(index)}
+              >
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+                  <CardHeader className="cursor-pointer transition-colors hover:bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3 text-left">
                         <FolderOpen className="h-5 w-5 text-gray-500" />
                         <div>
                           <CardTitle className="text-lg">
-                            {project.name || 'New Project'}
+                            {project.name || "New Project"}
                           </CardTitle>
-                          <CardDescription className="flex items-center space-x-4 mt-1">
+                          <CardDescription className="mt-1 flex items-center space-x-4">
                             {project.technologies.length > 0 && (
                               <span className="text-xs">
-                                {project.technologies.slice(0, 3).join(', ')}
-                                {project.technologies.length > 3 && '...'}
+                                {project.technologies.slice(0, 3).join(", ")}
+                                {project.technologies.length > 3 && "..."}
                               </span>
                             )}
                             {(project.startDate || project.endDate) && (
                               <span className="flex items-center text-xs">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {project.startDate} {project.startDate && project.endDate && '- '} {project.endDate}
+                                <Calendar className="mr-1 h-3 w-3" />
+                                {project.startDate}{" "}
+                                {project.startDate && project.endDate && "- "}{" "}
+                                {project.endDate}
                               </span>
                             )}
                             {project.url && (
@@ -177,13 +208,13 @@ export function ProjectsForm() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleRemoveProject(index);
                           }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          size="sm"
+                          variant="ghost"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -200,133 +231,196 @@ export function ProjectsForm() {
                 <CollapsibleContent>
                   <CardContent className="space-y-6 pt-0">
                     {/* Basic Project Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="space-y-2 md:col-span-2">
                         <Label htmlFor={`name-${index}`}>Project Name *</Label>
                         <Input
+                          className={
+                            getFieldError(`projects.${index}.name`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`name-${index}`}
+                          onChange={(e) =>
+                            handleUpdateProject(index, { name: e.target.value })
+                          }
+                          placeholder="Enter project name"
                           type="text"
                           value={project.name}
-                          onChange={(e) => handleUpdateProject(index, { name: e.target.value })}
-                          placeholder="Enter project name"
-                          className={getFieldError(`projects.${index}.name`) ? 'border-red-500' : ''}
                         />
                         {getFieldError(`projects.${index}.name`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`projects.${index}.name`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`projects.${index}.name`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`url-${index}`}>Live URL</Label>
                         <Input
+                          className={
+                            getFieldError(`projects.${index}.url`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`url-${index}`}
-                          type="url"
-                          value={project.url || ''}
-                          onChange={(e) => handleUpdateProject(index, { url: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateProject(index, { url: e.target.value })
+                          }
                           placeholder="https://project-demo.com"
-                          className={getFieldError(`projects.${index}.url`) ? 'border-red-500' : ''}
+                          type="url"
+                          value={project.url || ""}
                         />
                         {getFieldError(`projects.${index}.url`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`projects.${index}.url`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`projects.${index}.url`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`githubUrl-${index}`}>GitHub URL</Label>
                         <Input
+                          className={
+                            getFieldError(`projects.${index}.githubUrl`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`githubUrl-${index}`}
-                          type="url"
-                          value={project.githubUrl || ''}
-                          onChange={(e) => handleUpdateProject(index, { githubUrl: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateProject(index, {
+                              githubUrl: e.target.value,
+                            })
+                          }
                           placeholder="https://github.com/user/repo"
-                          className={getFieldError(`projects.${index}.githubUrl`) ? 'border-red-500' : ''}
+                          type="url"
+                          value={project.githubUrl || ""}
                         />
                         {getFieldError(`projects.${index}.githubUrl`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`projects.${index}.githubUrl`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`projects.${index}.githubUrl`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`startDate-${index}`}>Start Date</Label>
                         <Input
+                          className={
+                            getFieldError(`projects.${index}.startDate`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`startDate-${index}`}
-                          type="text"
-                          value={project.startDate || ''}
-                          onChange={(e) => handleUpdateProject(index, { startDate: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateProject(index, {
+                              startDate: e.target.value,
+                            })
+                          }
                           placeholder="e.g., Jan 2023"
-                          className={getFieldError(`projects.${index}.startDate`) ? 'border-red-500' : ''}
+                          type="text"
+                          value={project.startDate || ""}
                         />
                         {getFieldError(`projects.${index}.startDate`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`projects.${index}.startDate`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`projects.${index}.startDate`)}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor={`endDate-${index}`}>End Date</Label>
                         <Input
+                          className={
+                            getFieldError(`projects.${index}.endDate`)
+                              ? "border-red-500"
+                              : ""
+                          }
                           id={`endDate-${index}`}
-                          type="text"
-                          value={project.endDate || ''}
-                          onChange={(e) => handleUpdateProject(index, { endDate: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateProject(index, {
+                              endDate: e.target.value,
+                            })
+                          }
                           placeholder="e.g., Mar 2023 or Present"
-                          className={getFieldError(`projects.${index}.endDate`) ? 'border-red-500' : ''}
+                          type="text"
+                          value={project.endDate || ""}
                         />
                         {getFieldError(`projects.${index}.endDate`) && (
-                          <p className="text-sm text-red-600">{getFieldError(`projects.${index}.endDate`)}</p>
+                          <p className="text-red-600 text-sm">
+                            {getFieldError(`projects.${index}.endDate`)}
+                          </p>
                         )}
                       </div>
                     </div>
 
                     {/* Project Description */}
                     <div className="space-y-2">
-                      <Label htmlFor={`description-${index}`}>Project Description *</Label>
+                      <Label htmlFor={`description-${index}`}>
+                        Project Description *
+                      </Label>
                       <Textarea
+                        className={`min-h-[100px] ${getFieldError(`projects.${index}.description`) ? "border-red-500" : ""}`}
                         id={`description-${index}`}
-                        value={project.description}
-                        onChange={(e) => handleUpdateProject(index, { description: e.target.value })}
+                        onChange={(e) =>
+                          handleUpdateProject(index, {
+                            description: e.target.value,
+                          })
+                        }
                         placeholder="Describe what this project does, its purpose, and key features..."
-                        className={`min-h-[100px] ${getFieldError(`projects.${index}.description`) ? 'border-red-500' : ''}`}
                         rows={4}
+                        value={project.description}
                       />
                       {getFieldError(`projects.${index}.description`) && (
-                        <p className="text-sm text-red-600">{getFieldError(`projects.${index}.description`)}</p>
+                        <p className="text-red-600 text-sm">
+                          {getFieldError(`projects.${index}.description`)}
+                        </p>
                       )}
                     </div>
 
                     {/* Technologies - Two Input Methods */}
                     <div className="space-y-4">
                       <Label>Technologies Used *</Label>
-                      
+
                       {/* Method 1: Bulk Comma-Separated Input */}
                       <div className="space-y-2">
-                        <Label htmlFor={`bulk-tech-${index}`} className="text-sm font-normal">
+                        <Label
+                          className="font-normal text-sm"
+                          htmlFor={`bulk-tech-${index}`}
+                        >
                           Comma-separated list:
                         </Label>
                         <Input
+                          className="font-mono text-sm"
                           id={`bulk-tech-${index}`}
+                          onChange={(e) =>
+                            handleBulkTechnologiesUpdate(index, e.target.value)
+                          }
+                          placeholder="e.g., React, TypeScript, Node.js, PostgreSQL"
                           type="text"
                           value={getBulkTechnologiesText(index)}
-                          onChange={(e) => handleBulkTechnologiesUpdate(index, e.target.value)}
-                          placeholder="e.g., React, TypeScript, Node.js, PostgreSQL"
-                          className="font-mono text-sm"
                         />
-                        <p className="text-xs text-gray-500">
-                          Type technologies separated by commas. Changes save automatically.
+                        <p className="text-gray-500 text-xs">
+                          Type technologies separated by commas. Changes save
+                          automatically.
                         </p>
                       </div>
 
                       {/* Method 2: Individual Technology Input */}
                       <div className="space-y-2">
-                        <Label htmlFor={`single-tech-${index}`} className="text-sm font-normal">
+                        <Label
+                          className="font-normal text-sm"
+                          htmlFor={`single-tech-${index}`}
+                        >
                           Or add technologies one by one:
                         </Label>
                         <Input
                           id={`single-tech-${index}`}
-                          type="text"
-                          placeholder="Type a technology and press Enter"
                           onKeyPress={(e) => handleTechnologyKeyPress(e, index)}
+                          placeholder="Type a technology and press Enter"
+                          type="text"
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className="text-gray-500 text-xs">
                           Press Enter to add each technology individually.
                         </p>
                       </div>
@@ -334,21 +428,25 @@ export function ProjectsForm() {
                       {/* Current Technologies Display */}
                       {project.technologies.length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-sm font-normal">Current technologies:</Label>
-                          <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-md border">
+                          <Label className="font-normal text-sm">
+                            Current technologies:
+                          </Label>
+                          <div className="flex flex-wrap gap-2 rounded-md border bg-gray-50 p-3">
                             {project.technologies.map((tech, techIndex) => (
                               <Badge
+                                className="cursor-pointer transition-colors hover:bg-red-100"
                                 key={techIndex}
+                                onClick={() =>
+                                  handleRemoveTechnology(index, techIndex)
+                                }
                                 variant="secondary"
-                                className="cursor-pointer hover:bg-red-100 transition-colors"
-                                onClick={() => handleRemoveTechnology(index, techIndex)}
                               >
                                 {tech}
-                                <X className="h-3 w-3 ml-1" />
+                                <X className="ml-1 h-3 w-3" />
                               </Badge>
                             ))}
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-gray-500 text-xs">
                             Click on any technology badge to remove it.
                           </p>
                         </div>
@@ -356,7 +454,9 @@ export function ProjectsForm() {
 
                       {/* Technology validation error */}
                       {getFieldError(`projects.${index}.technologies`) && (
-                        <p className="text-sm text-red-600">{getFieldError(`projects.${index}.technologies`)}</p>
+                        <p className="text-red-600 text-sm">
+                          {getFieldError(`projects.${index}.technologies`)}
+                        </p>
                       )}
                     </div>
 
@@ -365,41 +465,54 @@ export function ProjectsForm() {
                       <div className="flex items-center justify-between">
                         <Label>Key Features & Highlights</Label>
                         <Button
+                          onClick={() => handleAddHighlight(index)}
+                          size="sm"
                           type="button"
                           variant="outline"
-                          size="sm"
-                          onClick={() => handleAddHighlight(index)}
                         >
-                          <Plus className="h-4 w-4 mr-1" />
+                          <Plus className="mr-1 h-4 w-4" />
                           Add Highlight
                         </Button>
                       </div>
-                      
-                      {(project.highlights || []).map((highlight, highlightIndex) => (
-                        <div key={highlightIndex} className="flex items-start space-x-2">
-                          <span className="text-gray-400 mt-3">•</span>
-                          <div className="flex-1">
-                            <Textarea
-                              value={highlight}
-                              onChange={(e) => handleUpdateHighlight(index, highlightIndex, e.target.value)}
-                              placeholder="Describe a key feature, achievement, or technical highlight..."
-                              className="min-h-[80px]"
-                              rows={2}
-                            />
+
+                      {(project.highlights || []).map(
+                        (highlight, highlightIndex) => (
+                          <div
+                            className="flex items-start space-x-2"
+                            key={highlightIndex}
+                          >
+                            <span className="mt-3 text-gray-400">•</span>
+                            <div className="flex-1">
+                              <Textarea
+                                className="min-h-[80px]"
+                                onChange={(e) =>
+                                  handleUpdateHighlight(
+                                    index,
+                                    highlightIndex,
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Describe a key feature, achievement, or technical highlight..."
+                                rows={2}
+                                value={highlight}
+                              />
+                            </div>
+                            {(project.highlights || []).length > 1 && (
+                              <Button
+                                className="mt-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                onClick={() =>
+                                  handleRemoveHighlight(index, highlightIndex)
+                                }
+                                size="sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
-                          {(project.highlights || []).length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveHighlight(index, highlightIndex)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 mt-1"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </CardContent>
                 </CollapsibleContent>
@@ -413,11 +526,11 @@ export function ProjectsForm() {
       {profile.projects.length > 0 && (
         <div className="flex justify-center pt-6">
           <Button
+            className="w-full max-w-md"
             onClick={handleAddProject}
             size="lg"
-            className="w-full max-w-md"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="mr-2 h-5 w-5" />
             Add Project
           </Button>
         </div>
@@ -425,15 +538,18 @@ export function ProjectsForm() {
 
       {/* Empty State - Only show when no projects */}
       {profile.projects.length === 0 && (
-        <Card className="text-center py-12">
+        <Card className="py-12 text-center">
           <CardContent>
-            <FolderOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects added</h3>
-            <p className="text-gray-600 mb-6">
-              Showcase your work by adding personal or professional projects that demonstrate your skills.
+            <FolderOpen className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 font-semibold text-gray-900 text-lg">
+              No projects added
+            </h3>
+            <p className="mb-6 text-gray-600">
+              Showcase your work by adding personal or professional projects
+              that demonstrate your skills.
             </p>
             <Button onClick={handleAddProject} size="lg">
-              <Plus className="h-5 w-5 mr-2" />
+              <Plus className="mr-2 h-5 w-5" />
               Add Your First Project
             </Button>
           </CardContent>

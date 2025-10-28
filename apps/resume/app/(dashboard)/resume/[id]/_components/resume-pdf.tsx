@@ -1,226 +1,236 @@
 "use client";
 
-import React from "react";
 import {
   Document,
-  Font,
   Link,
   Page,
   StyleSheet,
   Text,
   View,
 } from "@react-pdf/renderer";
+import React from "react";
 import {
   useResumeBasicInfo,
+  useResumeCertifications,
+  useResumeEducation,
+  useResumeProfessionalSummary,
+  useResumeProjects,
+  useResumeSectionOrder,
   useResumeSkills,
   useResumeWorkExperience,
-  useResumeProfessionalSummary,
-  useResumeEducation,
-  useResumeProjects,
-  useResumeCertifications,
-  useResumeSectionOrder,
 } from "../../../../../stores/resume-editor-store";
 import type {
-  BasicInfo,
+  Certification,
+  Education,
+  Project,
   Skill,
   WorkExperience,
 } from "../../../../../types/profile";
+import {
+  formatPhoneNumber,
+  pdfHelpers,
+  resumeDesignTokens,
+} from "../_config/resume-design-tokens";
 
 // Using Helvetica for reliable PDF generation
 // Google Fonts can be added back later if needed
 
+// Constants
+const PX_TO_PT = 0.75; // Pixel to points conversion factor
+
 // Define styles for the PDF with enhanced typography
 const styles = StyleSheet.create({
   page: {
-    padding: "6mm", // Optimal balance: good margins without text wrapping issues
-    backgroundColor: "#ffffff",
-    fontFamily: "Helvetica",
-    fontWeight: 400,
-    lineHeight: 1.4,
+    padding: pdfHelpers.mm2pt(resumeDesignTokens.layout.page.padding.mm),
+    backgroundColor: resumeDesignTokens.colors.neutral.white,
+    fontFamily: resumeDesignTokens.typography.fontFamily.primary,
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    lineHeight: resumeDesignTokens.typography.lineHeight.normal,
   },
   header: {
-    marginBottom: 24, // Reduced from 32 to 24
-    textAlign: "center",
-    borderBottomWidth: 1.5,
-    borderBottomColor: "#e2e8f0",
-    paddingBottom: 16, // Reduced from 24 to 16
+    marginBottom: resumeDesignTokens.components.header.marginBottom * PX_TO_PT,
+    paddingBottom:
+      resumeDesignTokens.components.header.paddingBottom * PX_TO_PT,
   },
   name: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#0f172a",
-    letterSpacing: -0.5,
+    fontSize: pdfHelpers.getFontSize("4xl"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.bold,
+    marginBottom: pdfHelpers.getSpacing(3),
+    color: pdfHelpers.getColor("primary.900"),
+    letterSpacing: resumeDesignTokens.typography.letterSpacing.tight,
   },
   contactInfo: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 16,
-    fontSize: 11,
-    color: "#64748b",
-    fontWeight: 400,
+    justifyContent: "flex-start",
+    gap: resumeDesignTokens.components.contactInfo.gap * PX_TO_PT,
+    fontSize: pdfHelpers.getFontSize("base"),
+    color: pdfHelpers.getColor("primary.500"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
   },
   contactItem: {
     flexDirection: "row",
     alignItems: "center",
   },
   contactSeparator: {
-    marginHorizontal: 10,
-    color: "#cbd5e1",
-    fontSize: 8,
+    marginHorizontal:
+      resumeDesignTokens.components.contactInfo.separatorMargin * PX_TO_PT,
+    color: pdfHelpers.getColor("primary.300"),
+    fontSize: pdfHelpers.getFontSize("xs"),
   },
   link: {
-    color: "#2563eb",
+    color: pdfHelpers.getColor("accent.600"),
     textDecoration: "none",
-    fontWeight: "bold",
+    fontWeight: resumeDesignTokens.typography.fontWeight.bold,
   },
   section: {
-    marginBottom: 8,
+    marginBottom: resumeDesignTokens.components.section.marginBottom * PX_TO_PT,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#0f172a",
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    paddingBottom: 6,
+    fontSize: pdfHelpers.getFontSize("lg"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.bold,
+    color: pdfHelpers.getColor("primary.900"),
+    marginBottom:
+      resumeDesignTokens.components.section.titleMarginBottom * PX_TO_PT,
+    borderBottomWidth: resumeDesignTokens.borders.width.thin,
+    borderBottomColor: pdfHelpers.getColor("primary.200"),
+    paddingBottom:
+      resumeDesignTokens.components.section.titlePaddingBottom * PX_TO_PT,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: resumeDesignTokens.typography.letterSpacing.wide,
   },
   workItem: {
-    marginBottom: 8,
+    marginBottom:
+      resumeDesignTokens.components.workItem.marginBottom * PX_TO_PT,
   },
   jobHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 6,
+    marginBottom: pdfHelpers.getSpacing(2),
   },
   jobLeft: {
     flex: 1,
   },
   jobTitle: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#0f172a",
-    marginBottom: 4,
-    lineHeight: 1.2,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.bold,
+    color: pdfHelpers.getColor("primary.900"),
+    marginBottom: pdfHelpers.getSpacing(1),
+    lineHeight: resumeDesignTokens.typography.lineHeight.tight,
   },
   company: {
-    fontSize: 10,
-    fontWeight: "normal",
-    color: "#475569",
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    color: pdfHelpers.getColor("primary.600"),
   },
   location: {
-    fontSize: 10,
-    color: "#64748b",
-    marginLeft: 8,
-    fontWeight: 400,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    color: pdfHelpers.getColor("primary.500"),
+    marginLeft: pdfHelpers.getSpacing(3),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
   },
   dates: {
-    fontSize: 10,
-    fontWeight: "normal",
-    color: "#64748b",
-    marginLeft: 16,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    color: pdfHelpers.getColor("primary.600"),
+    marginLeft: pdfHelpers.getSpacing(7),
   },
   description: {
-    marginBottom: 14,
+    marginBottom: pdfHelpers.getSpacing(6),
   },
   bulletPoint: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 6,
+    marginBottom: pdfHelpers.getSpacing(2),
     paddingLeft: 0,
   },
   bullet: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#2563eb",
-    marginRight: 12,
-    marginTop: 7,
+    width: resumeDesignTokens.components.bullet.size,
+    height: resumeDesignTokens.components.bullet.size,
+    borderRadius: resumeDesignTokens.components.bullet.size / 2,
+    backgroundColor: pdfHelpers.getColor("accent.600"),
+    marginRight: resumeDesignTokens.components.bullet.marginRight * PX_TO_PT,
+    marginTop: resumeDesignTokens.components.bullet.marginTop * PX_TO_PT,
     flexShrink: 0,
   },
   bulletText: {
-    fontSize: 10,
-    color: "#334155",
-    lineHeight: 1.6,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    color: pdfHelpers.getColor("primary.700"),
+    lineHeight: resumeDesignTokens.typography.lineHeight.loose,
     flex: 1,
-    fontWeight: 400,
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
   },
   technologies: {
-    marginTop: 14,
+    marginTop: pdfHelpers.getSpacing(6),
   },
   techHeader: {
-    fontSize: 10,
-    fontWeight: "normal",
-    color: "#64748b",
-    marginBottom: 8,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    color: pdfHelpers.getColor("primary.600"),
+    marginBottom: pdfHelpers.getSpacing(3),
   },
   techTags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6,
+    gap: pdfHelpers.getSpacing(2),
   },
   techTag: {
-    fontSize: 9,
-    fontWeight: "normal",
-    color: "#1e293b",
-    backgroundColor: "#f1f5f9",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    fontSize: pdfHelpers.getFontSize("xs"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    color: pdfHelpers.getColor("primary.700"),
+    backgroundColor: pdfHelpers.getColor("primary.100"),
+    paddingHorizontal: pdfHelpers.getSpacing(4),
+    paddingVertical: pdfHelpers.getSpacing(1),
+    borderRadius: resumeDesignTokens.borders.radius.sm,
+    borderWidth: resumeDesignTokens.borders.width.thin,
+    borderColor: pdfHelpers.getColor("primary.200"),
   },
   skillsCategory: {
-    marginBottom: 18,
+    marginBottom:
+      resumeDesignTokens.components.skillsCategory.marginBottom * PX_TO_PT,
   },
   categoryTitle: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#0f172a",
-    marginBottom: 10,
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.bold,
+    color: pdfHelpers.getColor("primary.900"),
+    marginBottom: pdfHelpers.getSpacing(4),
   },
   skillTags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: pdfHelpers.getSpacing(3),
   },
   skillTag: {
-    fontSize: 10,
-    fontWeight: "normal",
-    color: "#1e293b",
-    backgroundColor: "#f8fafc",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    fontSize: pdfHelpers.getFontSize("sm"),
+    fontWeight: resumeDesignTokens.typography.fontWeight.normal,
+    color: pdfHelpers.getColor("primary.700"),
+    backgroundColor: pdfHelpers.getColor("primary.50"),
+    paddingHorizontal: pdfHelpers.getSpacing(5),
+    paddingVertical: pdfHelpers.getSpacing(2),
+    borderRadius: resumeDesignTokens.borders.radius.md,
+    borderWidth: resumeDesignTokens.borders.width.thin,
+    borderColor: pdfHelpers.getColor("primary.200"),
   },
   summaryText: {
-    fontSize: 10,
-    color: '#334155',
-    lineHeight: 1.5,
-    textAlign: 'left',
+    fontSize: pdfHelpers.getFontSize("sm"),
+    color: pdfHelpers.getColor("primary.700"),
+    lineHeight: resumeDesignTokens.typography.lineHeight.relaxed,
+    textAlign: "left",
   },
 });
 
 // Helper to remove protocol from URLs
-const stripProtocol = (url: string) => url.replace(/^https?:\/\//, "");
+const PROTOCOL_REGEX = /^https?:\/\//;
+const stripProtocol = (url: string) => url.replace(PROTOCOL_REGEX, "");
 
-interface ContactItemProps {
+type ContactItemProps = {
   children: React.ReactNode;
   showSeparator: boolean;
-}
+};
 
 function ContactItem({ children, showSeparator }: ContactItemProps) {
   return (
     <View style={styles.contactItem}>
       {children}
-      {showSeparator && <Text style={styles.contactSeparator}>•</Text>}
+      {showSeparator && <Text style={styles.contactSeparator}>|</Text>}
     </View>
   );
 }
@@ -238,7 +248,10 @@ export default function ResumePDF() {
   // Build contact info items array
   const contactItems = [
     basicInfo?.email && { type: "text", value: basicInfo.email },
-    basicInfo?.phoneNumber && { type: "text", value: basicInfo.phoneNumber },
+    basicInfo?.phoneNumber && {
+      type: "text",
+      value: formatPhoneNumber(basicInfo.phoneNumber),
+    },
     basicInfo?.location && { type: "text", value: basicInfo.location },
     basicInfo?.website && {
       type: "link",
@@ -260,9 +273,8 @@ export default function ResumePDF() {
   // Section renderers map
   const sectionRenderers: Record<string, () => React.ReactElement | null> = {
     professional_summary: () =>
-      professionalSummary && professionalSummary.trim() ? (
+      professionalSummary?.trim() ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Professional Summary</Text>
           <Text style={styles.summaryText}>{professionalSummary}</Text>
         </View>
       ) : null,
@@ -270,67 +282,63 @@ export default function ResumePDF() {
     work_experience: () =>
       workExperience && workExperience.length > 0 ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Professional Experience</Text>
+          <Text style={styles.sectionTitle}>Experience</Text>
           {workExperience.map((experience: WorkExperience, index: number) => (
             <View
               key={experience.id || `experience-${index}`}
               style={styles.workItem}
             >
-              {/* Job Title and Company */}
+              {/* Job Title | Company | Location | Date */}
               <View style={styles.jobHeader}>
-                <View style={styles.jobLeft}>
-                  <Text style={styles.jobTitle}>{experience.position}</Text>
-                  <View
-                    style={{ flexDirection: "row", alignItems: "center" }}
-                  >
-                    <Text style={styles.company}>{experience.company}</Text>
-                    {experience.location && (
-                      <Text style={styles.location}>
-                        • {experience.location}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <Text style={styles.dates}>{experience.date}</Text>
+                <Text style={styles.jobTitle}>
+                  {experience.position}
+                  {" | "}
+                  <Text style={styles.company}>{experience.company}</Text>
+                  {experience.location && (
+                    <>
+                      {" | "}
+                      <Text style={styles.location}>{experience.location}</Text>
+                    </>
+                  )}
+                  {" | "}
+                  <Text style={styles.dates}>{experience.date}</Text>
+                </Text>
               </View>
 
               {/* Responsibilities/Achievements */}
               {experience.description && experience.description.length > 0 && (
                 <View style={styles.description}>
-                  {experience.description.map(
-                    (bullet: string, bulletIndex: number) => (
-                      <View key={bulletIndex} style={styles.bulletPoint}>
-                        <View style={styles.bullet} />
-                        <Text style={styles.bulletText}>{bullet}</Text>
-                      </View>
-                    )
-                  )}
+                  {experience.description.map((bullet: string) => (
+                    <View key={bullet} style={styles.bulletPoint}>
+                      <View style={styles.bullet} />
+                      <Text style={styles.bulletText}>{bullet}</Text>
+                    </View>
+                  ))}
                 </View>
               )}
 
               {/* Technologies */}
-              {experience.technologies && experience.technologies.length > 0 && (
-                <View style={styles.technologies}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={styles.techHeader}>Technologies:</Text>
-                  </View>
-                  <View style={styles.techTags}>
-                    {experience.technologies.map(
-                      (tech: string, techIndex: number) => (
-                        <Text key={techIndex} style={styles.techTag}>
+              {experience.technologies &&
+                experience.technologies.length > 0 && (
+                  <View style={styles.technologies}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginBottom: pdfHelpers.getSpacing(3),
+                      }}
+                    >
+                      <Text style={styles.techHeader}>Technologies:</Text>
+                    </View>
+                    <View style={styles.techTags}>
+                      {experience.technologies.map((tech: string) => (
+                        <Text key={tech} style={styles.techTag}>
                           {tech}
                         </Text>
-                      )
-                    )}
+                      ))}
+                    </View>
                   </View>
-                </View>
-              )}
+                )}
             </View>
           ))}
         </View>
@@ -339,31 +347,23 @@ export default function ResumePDF() {
     skills: () =>
       skills && skills.length > 0 ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Skills</Text>
+          <Text style={styles.sectionTitle}>Technical Skills</Text>
           {skills.map((skillCategory: Skill, categoryIndex: number) => (
             <View
               key={skillCategory.id || `category-${categoryIndex}`}
               style={styles.skillsCategory}
             >
-              {/* Category Name */}
-              {skillCategory.category && (
-                <Text style={styles.categoryTitle}>
-                  {skillCategory.category}
-                </Text>
-              )}
-
-              {/* Skills List */}
-              {skillCategory.items && skillCategory.items.length > 0 && (
-                <View style={styles.skillTags}>
-                  {skillCategory.items.map(
-                    (skill: string, skillIndex: number) => (
-                      <Text key={skillIndex} style={styles.skillTag}>
-                        {skill}
-                      </Text>
-                    )
-                  )}
-                </View>
-              )}
+              {/* Category: skill1, skill2, skill3 format */}
+              {skillCategory.category &&
+                skillCategory.items &&
+                skillCategory.items.length > 0 && (
+                  <Text style={styles.summaryText}>
+                    <Text style={styles.categoryTitle}>
+                      {skillCategory.category}:{" "}
+                    </Text>
+                    {skillCategory.items.join(", ")}
+                  </Text>
+                )}
             </View>
           ))}
         </View>
@@ -373,14 +373,22 @@ export default function ResumePDF() {
       projects && projects.length > 0 ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Projects</Text>
-          {projects.map((project: any, index: number) => (
-            <View key={project.id || `project-${index}`} style={styles.workItem}>
+          {projects.map((project: Project, index: number) => (
+            <View
+              key={project.id || `project-${index}`}
+              style={styles.workItem}
+            >
               <View style={styles.jobHeader}>
                 <View style={styles.jobLeft}>
                   <Text style={styles.jobTitle}>{project.name}</Text>
                   {project.url && (
                     <Link src={project.url} style={styles.link}>
-                      <Text style={{ fontSize: 10, color: '#1e40af' }}>
+                      <Text
+                        style={{
+                          fontSize: pdfHelpers.getFontSize("sm"),
+                          color: pdfHelpers.getColor("accent.600"),
+                        }}
+                      >
                         {stripProtocol(project.url)}
                       </Text>
                     </Link>
@@ -397,8 +405,8 @@ export default function ResumePDF() {
                 <View style={styles.technologies}>
                   <Text style={styles.techHeader}>Technologies:</Text>
                   <View style={styles.techTags}>
-                    {project.technologies.map((tech: string, techIndex: number) => (
-                      <Text key={techIndex} style={styles.techTag}>
+                    {project.technologies.map((tech: string) => (
+                      <Text key={tech} style={styles.techTag}>
                         {tech}
                       </Text>
                     ))}
@@ -414,7 +422,7 @@ export default function ResumePDF() {
       education && education.length > 0 ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Education</Text>
-          {education.map((edu: any, index: number) => (
+          {education.map((edu: Education, index: number) => (
             <View key={edu.id || `education-${index}`} style={styles.workItem}>
               <View style={styles.jobHeader}>
                 <View style={styles.jobLeft}>
@@ -422,9 +430,7 @@ export default function ResumePDF() {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text style={styles.company}>{edu.institution}</Text>
                     {edu.location && (
-                      <Text style={styles.location}>
-                        • {edu.location}
-                      </Text>
+                      <Text style={styles.location}>| {edu.location}</Text>
                     )}
                   </View>
                 </View>
@@ -442,8 +448,11 @@ export default function ResumePDF() {
       certifications && certifications.length > 0 ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Certifications</Text>
-          {certifications.map((cert: any, index: number) => (
-            <View key={cert.id || `certification-${index}`} style={styles.workItem}>
+          {certifications.map((cert: Certification, index: number) => (
+            <View
+              key={cert.id || `certification-${index}`}
+              style={styles.workItem}
+            >
               <View style={styles.jobHeader}>
                 <View style={styles.jobLeft}>
                   <Text style={styles.jobTitle}>{cert.name}</Text>
@@ -509,9 +518,7 @@ export default function ResumePDF() {
         {sectionOrder.map((sectionName: string) => {
           const renderSection = sectionRenderers[sectionName];
           return renderSection ? (
-            <React.Fragment key={sectionName}>
-              {renderSection()}
-            </React.Fragment>
+            <React.Fragment key={sectionName}>{renderSection()}</React.Fragment>
           ) : null;
         })}
       </Page>

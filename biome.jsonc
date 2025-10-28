@@ -8,6 +8,9 @@
     "rules": {
       "nursery": {
         "noDeprecatedImports": "error"
+      },
+      "style": {
+        "noMagicNumbers": "off"
       }
     }
   },

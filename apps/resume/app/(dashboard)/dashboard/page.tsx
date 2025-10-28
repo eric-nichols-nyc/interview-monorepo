@@ -1,20 +1,27 @@
 "use client";
 
 import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Calendar, FileText, Plus } from "lucide-react";
-import Link from "next/link";
-import { useResumes } from "../../../hooks/queries/resume-queries";
+import { Card, CardContent } from "@repo/design-system/components/ui/card";
+import { FileText, Plus } from "lucide-react";
 import { CreateResumeDialog } from "../../../components/create-resume-dialog";
+import {
+  useDeleteResume,
+  useResumes,
+} from "../../../hooks/queries/resume-queries";
+import { ResumeCard } from "./_components/resume-card";
 
 export default function DashboardPage() {
   const { data: resumes = [], isLoading, error } = useResumes();
+  const deleteResume = useDeleteResume();
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this resume?")) {
+      const result = await deleteResume.mutateAsync(id);
+      if (!result.success) {
+        alert(result.error || "Failed to delete resume");
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -71,32 +78,11 @@ export default function DashboardPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {resumes.map((resume) => (
-            <Link href={`/resume/${resume.id}`} key={resume.id}>
-              <Card className="cursor-pointer transition-shadow hover:shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    {resume.name}
-                  </CardTitle>
-                  {resume.targetRole && (
-                    <CardDescription>{resume.targetRole}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center text-muted-foreground text-sm">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Updated {new Date(resume.updatedAt).toLocaleDateString()}
-                  </div>
-                  {resume.isBaseResume && (
-                    <div className="mt-2">
-                      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 font-medium text-blue-700 text-xs ring-1 ring-blue-700/10 ring-inset">
-                        Base Resume
-                      </span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+            <ResumeCard
+              key={resume.id}
+              onDelete={handleDelete}
+              resume={resume}
+            />
           ))}
         </div>
       )}

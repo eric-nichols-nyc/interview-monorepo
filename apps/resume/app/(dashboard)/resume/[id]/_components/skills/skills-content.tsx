@@ -1,25 +1,25 @@
 "use client";
 
-import { Button } from "@repo/design-system/components/ui/button";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
+import { Button } from "@repo/design-system/components/ui/button";
 import { Plus, RefreshCw, Upload } from "lucide-react";
 import { useProfile } from "../../../../../../hooks/queries/profile-queries";
 import {
@@ -49,7 +49,7 @@ export function SkillsContent() {
     if (over && active.id !== over.id) {
       const oldIndex = skillCategoryIds.indexOf(active.id as string);
       const newIndex = skillCategoryIds.indexOf(over.id as string);
-      
+
       const reorderedSkills = arrayMove(skills, oldIndex, newIndex) as Skill[];
       updateSkills(reorderedSkills);
     }
@@ -70,7 +70,7 @@ export function SkillsContent() {
   const updateSkillCategory = (
     index: number,
     field: keyof Skill,
-    value: any
+    value: string | string[]
   ) => {
     const updatedSkills = [...skills];
     updatedSkills[index] = {
@@ -85,18 +85,21 @@ export function SkillsContent() {
     if (skills.length <= 1) {
       return; // Keep at least one
     }
-    const updatedSkills = skills.filter(
-      (_: Skill, i: number) => i !== index
-    );
+    const updatedSkills = skills.filter((_: Skill, i: number) => i !== index);
     updateSkills(updatedSkills);
   };
 
   // Import skills into a specific category
-  const importSkillsToCategory = (categoryIndex: number, skillsToImport: string[]) => {
+  const importSkillsToCategory = (
+    categoryIndex: number,
+    skillsToImport: string[]
+  ) => {
     const updatedSkills = [...skills];
     const currentItems = updatedSkills[categoryIndex].items || [];
     // Add new skills, avoiding duplicates
-    const uniqueNewSkills = skillsToImport.filter(skill => !currentItems.includes(skill));
+    const uniqueNewSkills = skillsToImport.filter(
+      (skill) => !currentItems.includes(skill)
+    );
     updatedSkills[categoryIndex] = {
       ...updatedSkills[categoryIndex],
       items: [...currentItems, ...uniqueNewSkills],
@@ -140,10 +143,10 @@ export function SkillsContent() {
 
       {/* Drag and Drop Skill Categories List */}
       <DndContext
-        sensors={sensors}
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
       >
         <SortableContext
           items={skillCategoryIds}
@@ -152,15 +155,15 @@ export function SkillsContent() {
           <div className="space-y-4">
             {skills.map((skillCategory, index) => (
               <DraggableSkillCategory
-                key={skillCategoryIds[index]}
-                id={skillCategoryIds[index]}
-                skillCategory={skillCategory}
-                index={index}
-                onUpdate={updateSkillCategory}
-                onDelete={deleteSkillCategory}
-                isOnlyItem={skills.length === 1}
                 availableProfileSkills={profile?.skills || []}
+                id={skillCategoryIds[index]}
+                index={index}
+                isOnlyItem={skills.length === 1}
+                key={skillCategoryIds[index]}
+                onDelete={deleteSkillCategory}
                 onImportSkills={importSkillsToCategory}
+                onUpdate={updateSkillCategory}
+                skillCategory={skillCategory}
               />
             ))}
           </div>
@@ -169,7 +172,7 @@ export function SkillsContent() {
 
       {/* Help Text */}
       {skills.length === 0 && (
-        <div className="text-center text-muted-foreground text-sm py-8">
+        <div className="py-8 text-center text-muted-foreground text-sm">
           <p>No skill categories added yet.</p>
           <p>Click "Add Category" to get started.</p>
         </div>

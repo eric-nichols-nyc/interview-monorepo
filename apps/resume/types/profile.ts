@@ -36,8 +36,8 @@ export type Project = {
 
 export type Skill = {
   id?: string;
-  category: string;  // e.g., "Programming Languages", "Frameworks", "Tools"
-  items: string[];   // Array of skills in this category
+  category: string; // e.g., "Programming Languages", "Frameworks", "Tools"
+  items: string[]; // Array of skills in this category
 };
 
 export type Certification = {

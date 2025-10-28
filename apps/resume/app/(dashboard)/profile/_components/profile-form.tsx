@@ -157,7 +157,6 @@ export function ProfileForm() {
         }
       },
       onError: (error) => {
-        console.error("Save error:", error);
         setSaveStatus("error");
         setSaveMessage(error.message || "An unexpected error occurred");
       },

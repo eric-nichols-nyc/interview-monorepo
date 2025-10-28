@@ -1,23 +1,23 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@repo/design-system/components/ui/button";
-import { Input } from "@repo/design-system/components/ui/input";
-import { Label } from "@repo/design-system/components/ui/label";
+import { Checkbox } from "@repo/design-system/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@repo/design-system/components/ui/collapsible";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Label } from "@repo/design-system/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@repo/design-system/components/ui/popover";
-import { Checkbox } from "@repo/design-system/components/ui/checkbox";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { ChevronDown, GripVertical, Plus, Trash2, Upload } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Skill } from "../../../../../../types/profile";
 import { DraggableSkillItem } from "./draggable-skill-item";
 
@@ -25,7 +25,11 @@ type DraggableSkillCategoryProps = {
   id: string;
   skillCategory: Skill;
   index: number;
-  onUpdate: (index: number, field: keyof Skill, value: any) => void;
+  onUpdate: (
+    index: number,
+    field: keyof Skill,
+    value: string | string[]
+  ) => void;
   onDelete: (index: number) => void;
   isOnlyItem: boolean;
   availableProfileSkills: Skill[];
@@ -42,10 +46,21 @@ export function DraggableSkillCategory({
   availableProfileSkills,
   onImportSkills,
 }: DraggableSkillCategoryProps) {
-  const [isOpen, setIsOpen] = useState(index === 0); // First item open by default
+  // Open by default if it's the first item OR if it's a new empty category
+  const isNewCategory =
+    !skillCategory.category &&
+    (!skillCategory.items || skillCategory.items.length === 0);
+  const [isOpen, setIsOpen] = useState(index === 0 || isNewCategory);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+
+  // Auto-open newly created categories
+  useEffect(() => {
+    if (isNewCategory) {
+      setIsOpen(true);
+    }
+  }, [isNewCategory]);
 
   const {
     attributes,
@@ -64,18 +79,20 @@ export function DraggableSkillCategory({
   // Display text for the header
   const headerText = skillCategory.category || "New Category";
   const itemCount = skillCategory.items?.length || 0;
-  const subHeaderText = `${itemCount} skill${itemCount !== 1 ? 's' : ''}`;
+  const subHeaderText = `${itemCount} skill${itemCount !== 1 ? "s" : ""}`;
 
   // Get all available skills from profile (flattened)
-  const allProfileSkills = availableProfileSkills.flatMap(skill => skill.items);
+  const allProfileSkills = availableProfileSkills.flatMap(
+    (skill) => skill.items
+  );
   const currentSkills = skillCategory.items || [];
-  const availableSkills = allProfileSkills.filter(skill => !currentSkills.includes(skill));
+  const availableSkills = allProfileSkills.filter(
+    (skill) => !currentSkills.includes(skill)
+  );
 
   const toggleSkillSelection = (skill: string) => {
-    setSelectedSkills(prev =>
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
     );
   };
 
@@ -102,7 +119,9 @@ export function DraggableSkillCategory({
   };
 
   const deleteSkillItem = (skillIndex: number) => {
-    const updatedItems = (skillCategory.items || []).filter((_, i) => i !== skillIndex);
+    const updatedItems = (skillCategory.items || []).filter(
+      (_, i) => i !== skillIndex
+    );
     onUpdate(index, "items", updatedItems);
   };
 
@@ -115,35 +134,33 @@ export function DraggableSkillCategory({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`border border-border rounded-lg bg-card/50 ${
+      className={`rounded-lg border border-border bg-card/50 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
+      ref={setNodeRef}
+      style={style}
     >
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible onOpenChange={setIsOpen} open={isOpen}>
         {/* Collapsible Header */}
         <CollapsibleTrigger asChild>
-          <div className="group flex items-center justify-between w-full p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-            <div className="flex items-center gap-3 flex-1">
+          <div className="group flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-muted/50">
+            <div className="flex flex-1 items-center gap-3">
               {/* Drag Handle */}
               <button
                 {...attributes}
                 {...listeners}
-                className="cursor-grab text-muted-foreground hover:text-foreground transition-colors active:cursor-grabbing"
+                aria-label="Drag to reorder"
+                className="cursor-grab text-muted-foreground transition-colors hover:text-foreground active:cursor-grabbing"
                 onClick={(e) => e.stopPropagation()}
                 type="button"
-                aria-label="Drag to reorder"
               >
                 <GripVertical className="h-4 w-4" />
               </button>
-              
+
               {/* Content Preview */}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm truncate">
-                  {headerText}
-                </div>
-                <div className="text-muted-foreground text-xs truncate">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium text-sm">{headerText}</div>
+                <div className="truncate text-muted-foreground text-xs">
                   {subHeaderText}
                 </div>
               </div>
@@ -151,31 +168,40 @@ export function DraggableSkillCategory({
 
             <div className="flex items-center gap-2">
               {/* Import Button */}
-              <Popover open={isImportOpen} onOpenChange={setIsImportOpen}>
+              <Popover onOpenChange={setIsImportOpen} open={isImportOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-accent/10 hover:text-accent"
+                    className="h-8 w-8 text-muted-foreground opacity-0 transition-all hover:bg-accent/10 hover:text-accent group-hover:opacity-100"
                     onClick={(e) => e.stopPropagation()}
                     size="icon"
-                    variant="ghost"
                     title="Import skills from profile"
+                    variant="ghost"
                   >
                     <Upload className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-64" align="end">
+                <PopoverContent align="end" className="w-64">
                   <div className="space-y-4">
-                    <h3 className="font-medium text-sm">Import Skills from Profile</h3>
-                    <div className="max-h-48 overflow-y-auto space-y-2">
+                    <h3 className="font-medium text-sm">
+                      Import Skills from Profile
+                    </h3>
+                    <div className="max-h-48 space-y-2 overflow-y-auto">
                       {availableSkills.length === 0 ? (
-                        <p className="text-muted-foreground text-sm">No new skills available to import</p>
+                        <p className="text-muted-foreground text-sm">
+                          No new skills available to import
+                        </p>
                       ) : (
                         availableSkills.map((skill) => (
-                          <div key={skill} className="flex items-center space-x-2">
+                          <div
+                            className="flex items-center space-x-2"
+                            key={skill}
+                          >
                             <Checkbox
                               checked={selectedSkills.includes(skill)}
                               id={`skill-${skill}`}
-                              onCheckedChange={() => toggleSkillSelection(skill)}
+                              onCheckedChange={() =>
+                                toggleSkillSelection(skill)
+                              }
                             />
                             <label
                               className="cursor-pointer text-sm leading-none"
@@ -190,10 +216,11 @@ export function DraggableSkillCategory({
                     {availableSkills.length > 0 && (
                       <Button
                         className="w-full"
-                        onClick={handleImportSkills}
                         disabled={selectedSkills.length === 0}
+                        onClick={handleImportSkills}
                       >
-                        Import {selectedSkills.length} Skill{selectedSkills.length !== 1 ? 's' : ''}
+                        Import {selectedSkills.length} Skill
+                        {selectedSkills.length !== 1 ? "s" : ""}
                       </Button>
                     )}
                   </div>
@@ -203,21 +230,21 @@ export function DraggableSkillCategory({
               {/* Delete Button */}
               {!isOnlyItem && (
                 <Button
-                  className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive"
+                  className="h-8 w-8 text-muted-foreground opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(index);
                   }}
                   size="icon"
-                  variant="ghost"
                   title="Delete category"
+                  variant="ghost"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {/* Expand/Collapse Icon */}
-              <ChevronDown 
+              <ChevronDown
                 className={`h-4 w-4 text-muted-foreground transition-transform ${
                   isOpen ? "rotate-180" : ""
                 }`}
@@ -228,7 +255,7 @@ export function DraggableSkillCategory({
 
         {/* Collapsible Content */}
         <CollapsibleContent>
-          <div className="px-4 pb-4 space-y-6 border-t border-border/50">
+          <div className="space-y-6 border-border/50 border-t px-4 pb-4">
             {/* Category Name Field */}
             <div className="space-y-2 pt-4">
               <Label
@@ -253,17 +280,17 @@ export function DraggableSkillCategory({
                   Skills
                 </Label>
                 <span className="text-muted-foreground text-xs">
-                  {itemCount} item{itemCount !== 1 ? 's' : ''}
+                  {itemCount} item{itemCount !== 1 ? "s" : ""}
                 </span>
               </div>
 
               {/* Existing Skills */}
               {skillCategory.items && skillCategory.items.length > 0 && (
                 <DraggableSkillItem
-                  skills={skillCategory.items}
-                  onUpdate={updateSkillItem}
                   onDelete={deleteSkillItem}
                   onReorder={reorderSkills}
+                  onUpdate={updateSkillItem}
+                  skills={skillCategory.items}
                 />
               )}
 
@@ -271,8 +298,6 @@ export function DraggableSkillCategory({
               <div className="flex gap-2">
                 <Input
                   className="flex-1"
-                  placeholder="Add a new skill..."
-                  value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -280,10 +305,12 @@ export function DraggableSkillCategory({
                       addNewSkill();
                     }
                   }}
+                  placeholder="Add a new skill..."
+                  value={newSkill}
                 />
                 <Button
-                  onClick={addNewSkill}
                   disabled={!newSkill.trim()}
+                  onClick={addNewSkill}
                   size="sm"
                 >
                   <Plus className="h-4 w-4" />
