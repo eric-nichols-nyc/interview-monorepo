@@ -19,6 +19,7 @@ import {
   useHasUnsavedChanges,
   useResumeEditorStore,
 } from "../../../../stores/resume-editor-store";
+import { EditorActionsButtons } from "./_components/editor-actions-buttons";
 import { ResumeCreator } from "./_components/resume-creator";
 export default function ResumePage({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string | null>(null);
@@ -98,9 +99,8 @@ export default function ResumePage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="font-bold text-3xl">{resume.name}</h1>
           {hasUnsavedChanges && (
             <div className="flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-amber-800">
               <div className="h-2 w-2 rounded-full bg-amber-500" />
@@ -108,9 +108,7 @@ export default function ResumePage({ params }: { params: { id: string } }) {
             </div>
           )}
         </div>
-        {resume.targetRole && (
-          <p className="text-lg text-muted-foreground">{resume.targetRole}</p>
-        )}
+        <EditorActionsButtons />
       </div>
 
       <div className="rounded-lg border bg-card p-6">

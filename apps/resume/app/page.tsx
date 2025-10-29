@@ -2,9 +2,7 @@
 
 import { useAuth } from "@repo/auth/provider";
 import { Button } from "@repo/design-system/components/ui/button";
-import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { CreateResumeDialog } from "../components/create-resume-dialog";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -53,25 +51,6 @@ export default function HomePage() {
         <p className="text-xl opacity-70">
           Welcome to your authenticated resume platform
         </p>
-
-        <div className="flex justify-center gap-4">
-          <CreateResumeDialog>
-            <Button
-              className="rounded-lg bg-primary px-6 py-3 font-medium text-black transition-opacity hover:opacity-90"
-              type="button"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Resume
-            </Button>
-          </CreateResumeDialog>
-          <Button
-            className="rounded-lg border border-border px-6 py-3 font-medium transition-colors hover:bg-muted"
-            onClick={() => router.push("/dashboard")}
-            type="button"
-          >
-            View Resumes
-          </Button>
-        </div>
       </div>
     </main>
   );

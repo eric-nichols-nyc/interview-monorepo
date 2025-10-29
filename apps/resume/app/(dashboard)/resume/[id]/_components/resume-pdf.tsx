@@ -36,7 +36,7 @@ import {
 // Google Fonts can be added back later if needed
 
 // Constants
-const PX_TO_PT = 0.75; // Pixel to points conversion factor
+const PX_TO_PT = 0.6; // Pixel to points conversion factor
 
 // Define styles for the PDF with enhanced typography
 const styles = StyleSheet.create({
@@ -221,6 +221,16 @@ const styles = StyleSheet.create({
 const PROTOCOL_REGEX = /^https?:\/\//;
 const stripProtocol = (url: string) => url.replace(PROTOCOL_REGEX, "");
 
+const formatEducationDates = (edu: Education): string => {
+  if (edu.isCurrent) {
+    return `${edu.startDate} - Present`;
+  }
+  if (edu.endDate) {
+    return `${edu.startDate} - ${edu.endDate}`;
+  }
+  return edu.startDate;
+};
+
 type ContactItemProps = {
   children: React.ReactNode;
   showSeparator: boolean;
@@ -394,13 +404,25 @@ export default function ResumePDF() {
                     </Link>
                   )}
                 </View>
-                {project.date && (
-                  <Text style={styles.dates}>{project.date}</Text>
+                {project.startDate && (
+                  <Text style={styles.dates}>
+                    {project.endDate
+                      ? `${project.startDate} - ${project.endDate}`
+                      : project.startDate}
+                  </Text>
                 )}
               </View>
               {project.description && (
                 <Text style={styles.summaryText}>{project.description}</Text>
               )}
+              {project.highlights &&
+                project.highlights.length > 0 &&
+                project.highlights.map((highlight: string) => (
+                  <View key={highlight} style={styles.bulletPoint}>
+                    <View style={styles.bullet} />
+                    <Text style={styles.bulletText}>{highlight}</Text>
+                  </View>
+                ))}
               {project.technologies && project.technologies.length > 0 && (
                 <View style={styles.technologies}>
                   <Text style={styles.techHeader}>Technologies:</Text>
@@ -426,7 +448,10 @@ export default function ResumePDF() {
             <View key={edu.id || `education-${index}`} style={styles.workItem}>
               <View style={styles.jobHeader}>
                 <View style={styles.jobLeft}>
-                  <Text style={styles.jobTitle}>{edu.degree}</Text>
+                  <Text style={styles.jobTitle}>
+                    {edu.degree}
+                    {edu.fieldOfStudy && ` in ${edu.fieldOfStudy}`}
+                  </Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Text style={styles.company}>{edu.institution}</Text>
                     {edu.location && (
@@ -434,10 +459,23 @@ export default function ResumePDF() {
                     )}
                   </View>
                 </View>
-                <Text style={styles.dates}>{edu.date}</Text>
+                <Text style={styles.dates}>{formatEducationDates(edu)}</Text>
               </View>
-              {edu.details && (
-                <Text style={styles.summaryText}>{edu.details}</Text>
+              {edu.gpa && (
+                <Text style={styles.summaryText}>GPA: {edu.gpa}</Text>
+              )}
+              {edu.honors &&
+                edu.honors.length > 0 &&
+                edu.honors.map((honor: string) => (
+                  <View key={honor} style={styles.bulletPoint}>
+                    <View style={styles.bullet} />
+                    <Text style={styles.bulletText}>{honor}</Text>
+                  </View>
+                ))}
+              {edu.coursework && edu.coursework.length > 0 && (
+                <Text style={styles.summaryText}>
+                  Relevant Coursework: {edu.coursework.join(", ")}
+                </Text>
               )}
             </View>
           ))}
@@ -458,10 +496,16 @@ export default function ResumePDF() {
                   <Text style={styles.jobTitle}>{cert.name}</Text>
                   <Text style={styles.company}>{cert.issuer}</Text>
                 </View>
-                <Text style={styles.dates}>{cert.date}</Text>
+                <Text style={styles.dates}>
+                  {cert.expiryDate
+                    ? `${cert.issueDate} - ${cert.expiryDate}`
+                    : cert.issueDate}
+                </Text>
               </View>
-              {cert.details && (
-                <Text style={styles.summaryText}>{cert.details}</Text>
+              {cert.credentialId && (
+                <Text style={styles.summaryText}>
+                  Credential ID: {cert.credentialId}
+                </Text>
               )}
             </View>
           ))}

@@ -15,8 +15,8 @@ export const resumeDesignTokens = {
       50: "#f8fafc", // Very light backgrounds
     },
     accent: {
-      600: "#2563eb", // Links, bullets
-      500: "#3b82f6", // Hover states
+      600: "#0f172a", // Links, bullets (black)
+      500: "#334155", // Hover states (dark gray)
     },
     neutral: {
       white: "#ffffff",
@@ -134,7 +134,7 @@ export const resumeDesignTokens = {
       marginBottom: 20,
     },
     skillsCategory: {
-      marginBottom: 18,
+      marginBottom: 9,
     },
     bullet: {
       size: 4, // Reduced for more subtle appearance
